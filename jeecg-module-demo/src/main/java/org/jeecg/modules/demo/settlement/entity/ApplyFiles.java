@@ -81,4 +81,8 @@ public class ApplyFiles implements Serializable {
 	@Excel(name = "文件", width = 15)
     @ApiModelProperty(value = "文件")
     private java.lang.String file;
+    /**项目外键*/
+    @ApiModelProperty(value = "项目外键")
+    private java.lang.String projectId;
+
 }

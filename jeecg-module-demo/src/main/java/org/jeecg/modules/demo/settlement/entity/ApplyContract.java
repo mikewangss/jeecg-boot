@@ -71,9 +71,9 @@ public class ApplyContract implements Serializable {
 	@Excel(name = "合同状态", width = 15, dicCode = "contract_status")
     @ApiModelProperty(value = "合同状态")
     private java.lang.String status;
-	/**合同外键ID*/
-    @ApiModelProperty(value = "合同外键ID")
-    private java.lang.String contractId;
+	/**项目外键ID*/
+    @ApiModelProperty(value = "项目外键ID")
+    private java.lang.String projectId;
 	/**开工时间*/
 	@Excel(name = "开工时间", width = 15, format = "yyyy-MM-dd")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
@@ -90,4 +90,8 @@ public class ApplyContract implements Serializable {
 	@Excel(name = "总价", width = 15)
     @ApiModelProperty(value = "总价")
     private java.lang.Double totalPrice;
+    /**合同附件*/
+    @Excel(name = "合同附件", width = 15)
+    @ApiModelProperty(value = "合同附件")
+    private java.lang.Double file;
 }

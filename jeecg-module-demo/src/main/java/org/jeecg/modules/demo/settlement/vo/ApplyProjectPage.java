@@ -1,6 +1,8 @@
 package org.jeecg.modules.demo.settlement.vo;
 
 import java.util.List;
+
+import org.jeecg.modules.demo.settlement.entity.ApplyFiles;
 import org.jeecg.modules.demo.settlement.entity.ApplyProject;
 import org.jeecg.modules.demo.settlement.entity.ApplyContract;
 import lombok.Data;
@@ -92,5 +94,9 @@ public class ApplyProjectPage {
 	@ExcelCollection(name="合同")
 	@ApiModelProperty(value = "合同")
 	private List<ApplyContract> applyContractList;
+
+	@ExcelCollection(name="项目附件")
+	@ApiModelProperty(value = "项目附件")
+	private List<ApplyFiles> applyFilesList;
 
 }

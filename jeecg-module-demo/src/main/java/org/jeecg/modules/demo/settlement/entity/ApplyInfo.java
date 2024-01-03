@@ -102,4 +102,12 @@ public class ApplyInfo implements Serializable {
     /**供应商外键*/
     @ApiModelProperty(value = "供应商外键")
     private java.lang.String supplierId;
+
+    /**项目外键*/
+    @ApiModelProperty(value = "项目外键")
+    private java.lang.String projectId;
+
+    /**合同外键*/
+    @ApiModelProperty(value = "合同外键")
+    private java.lang.String contractId;
 }
