@@ -1,0 +1,20 @@
+<!-- approval-process.bpmn20.xml -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             targetNamespace="http://www.flowable.org/processdef"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+
+    <process id="approvalProcess" name="Approval Process">
+        <startEvent id="startEvent" />
+        <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="userTask" />
+
+        <userTask id="userTask" name="User Task" flowable:assignee="${approval}" />
+        <sequenceFlow id="flow2" sourceRef="userTask" targetRef="serviceTask" />
+
+        <serviceTask id="serviceTask" name="Service Task" flowable:class="com.example.MyJavaDelegate" />
+        <sequenceFlow id="flow3" sourceRef="serviceTask" targetRef="endEvent" />
+
+        <endEvent id="endEvent" />
+    </process>
+
+</definitions>

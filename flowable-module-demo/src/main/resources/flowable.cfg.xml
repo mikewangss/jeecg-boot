@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="processEngineConfiguration" class="org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+        <property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:3306/flowable"/>
+        <property name="jdbcDriver" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUsername" value="root"/>
+        <property name="jdbcPassword" value="yurun123#"/>
+        <property name="databaseSchemaUpdate" value="true"/>
+    </bean>
+    <!-- 引擎配置 -->
+    <bean id="processEngineConfiguration" class="org.flowable.spring.SpringProcessEngineConfiguration">
+        <!-- 设置历史级别为 full -->
+        <property name="history" value="full" />
+    </bean>
+</beans>
