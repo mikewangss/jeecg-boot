@@ -79,6 +79,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/sys/randomImage/**", "anon"); //登录验证码接口排除
         filterChainDefinitionMap.put("/sys/checkCaptcha", "anon"); //登录验证码接口排除
         filterChainDefinitionMap.put("/sys/login", "anon"); //登录接口排除
+        filterChainDefinitionMap.put("/sys/register", "anon"); //注册接口排除
+        filterChainDefinitionMap.put("/settlement/applySupplier/supplierRegister", "anon"); //注册接口排除
         filterChainDefinitionMap.put("/sys/mLogin", "anon"); //登录接口排除
         filterChainDefinitionMap.put("/sys/logout", "anon"); //登出接口排除
         filterChainDefinitionMap.put("/sys/thirdLogin/**", "anon"); //第三方登录
@@ -86,7 +88,12 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/sys/sms", "anon");//短信验证码
         filterChainDefinitionMap.put("/sys/phoneLogin", "anon");//手机登录
         filterChainDefinitionMap.put("/sys/user/checkOnlyUser", "anon");//校验用户是否存在
-        filterChainDefinitionMap.put("/sys/user/register", "anon");//用户注册
+        filterChainDefinitionMap.put("/sys/register", "anon");//用户注册
+        filterChainDefinitionMap.put("/sys/common/upload", "anon");//用户注册
+        filterChainDefinitionMap.put("/settlement/applyNews/queryById", "anon");//行业动态
+        filterChainDefinitionMap.put("/settlement/applyNews/list", "anon");//行业动态
+        filterChainDefinitionMap.put("/sys/duplicate/check", "anon");//重复校验
+        filterChainDefinitionMap.put("/settlement/applySupplier/supplierRegister", "anon"); //注册接口排除
         filterChainDefinitionMap.put("/sys/user/phoneVerification", "anon");//用户忘记密码验证手机号
         filterChainDefinitionMap.put("/sys/user/passwordChange", "anon");//用户更改密码
         filterChainDefinitionMap.put("/auth/2step-code", "anon");//登录验证码
