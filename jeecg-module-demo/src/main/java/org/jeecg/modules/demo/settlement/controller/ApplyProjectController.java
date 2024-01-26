@@ -12,10 +12,6 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jeecg.modules.demo.settlement.entity.ApplyFiles;
-import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
-import org.jeecg.modules.demo.settlement.service.IApplyFilesService;
-import org.jeecg.modules.demo.test.entity.JeecgOrderTicket;
 import org.jeecg.modules.system.model.DepartIdModel;
 import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
@@ -29,10 +25,12 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.demo.settlement.entity.ApplyContract;
+import org.jeecg.modules.demo.settlement.entity.ApplyFiles;
 import org.jeecg.modules.demo.settlement.entity.ApplyProject;
 import org.jeecg.modules.demo.settlement.vo.ApplyProjectPage;
 import org.jeecg.modules.demo.settlement.service.IApplyProjectService;
 import org.jeecg.modules.demo.settlement.service.IApplyContractService;
+import org.jeecg.modules.demo.settlement.service.IApplyFilesService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -49,11 +47,13 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 
+import static org.jeecg.modules.demo.settlement.util.GetJsonData.readJsonFile;
+
 
 /**
  * @Description: 项目
  * @Author: jeecg-boot
- * @Date: 2024-01-02
+ * @Date: 2024-01-03
  * @Version: V1.0
  */
 @Api(tags = "项目")
@@ -109,6 +109,7 @@ public class ApplyProjectController {
         }
         return Result.OK(applyContractList);
     }
+
     /**
      * 通过userid查询用户的项目附件
      *
@@ -162,8 +163,18 @@ public class ApplyProjectController {
     @PostMapping(value = "/add")
     public Result<String> add(@RequestBody ApplyProjectPage applyProjectPage) {
         ApplyProject applyProject = new ApplyProject();
+        List<ApplyContract> applyContractList = new ArrayList<>();
+        List<ApplyFiles> applyFilesList = new ArrayList<>();
         BeanUtils.copyProperties(applyProjectPage, applyProject);
-        applyProjectService.saveMain(applyProject, applyProjectPage.getApplyContractList(), applyProjectPage.getApplyFilesList());
+        if (applyProjectPage.getApplyContractList().size() > 0) {
+            applyContractList = applyProjectPage.getApplyContractList();
+        }
+        if (applyProjectPage.getApplyFilesList().size() > 0) {
+            applyFilesList = applyProjectPage.getApplyFilesList();
+        } else {
+            applyFilesList = readJsonFile("classpath:org/jeecg/modules/demo/mock/json/apply_file.json", ApplyFiles.class);
+        }
+        applyProjectService.saveMain(applyProject, applyContractList, applyFilesList);
         return Result.OK("添加成功！");
     }
 
@@ -184,7 +195,7 @@ public class ApplyProjectController {
         if (applyProjectEntity == null) {
             return Result.error("未找到对应数据");
         }
-        applyProjectService.updateMain(applyProject, applyProjectPage.getApplyContractList());
+        applyProjectService.updateMain(applyProject, applyProjectPage.getApplyContractList(), applyProjectPage.getApplyFilesList());
         return Result.OK("编辑成功!");
     }
 
@@ -249,16 +260,17 @@ public class ApplyProjectController {
         List<ApplyContract> applyContractList = applyContractService.selectByMainId(id);
         return Result.OK(applyContractList);
     }
+
     /**
      * 通过id查询
      *
      * @param id
      * @return
      */
-    //@AutoLog(value = "合同通过主表ID查询")
-    @ApiOperation(value = "合同主表ID查询", notes = "合同-通主表ID查询")
-    @GetMapping(value = "/queryApplyFileByMainId")
-    public Result<List<ApplyFiles>> queryApplyFileByMainId(@RequestParam(name = "id", required = true) String id) {
+    //@AutoLog(value = "附件管理通过主表ID查询")
+    @ApiOperation(value = "附件管理主表ID查询", notes = "附件管理-通主表ID查询")
+    @GetMapping(value = "/queryApplyFilesByMainId")
+    public Result<List<ApplyFiles>> queryApplyFilesListByMainId(@RequestParam(name = "id", required = true) String id) {
         List<ApplyFiles> applyFilesList = applyFilesService.selectByMainId(id);
         return Result.OK(applyFilesList);
     }
@@ -292,6 +304,8 @@ public class ApplyProjectController {
             BeanUtils.copyProperties(main, vo);
             List<ApplyContract> applyContractList = applyContractService.selectByMainId(main.getId());
             vo.setApplyContractList(applyContractList);
+            List<ApplyFiles> applyFilesList = applyFilesService.selectByMainId(main.getId());
+            vo.setApplyFilesList(applyFilesList);
             pageList.add(vo);
         }
 
@@ -304,45 +318,45 @@ public class ApplyProjectController {
         return mv;
     }
 
-//    /**
-//     * 通过excel导入数据
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequiresPermissions("settlement:apply_project:importExcel")
-//    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
-//    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-//        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-//        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
-//        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
-//            // 获取上传文件对象
-//            MultipartFile file = entity.getValue();
-//            ImportParams params = new ImportParams();
-//            params.setTitleRows(2);
-//            params.setHeadRows(1);
-//            params.setNeedSave(true);
-//            try {
-//                List<ApplyProjectPage> list = ExcelImportUtil.importExcel(file.getInputStream(), ApplyProjectPage.class, params);
-//                for (ApplyProjectPage page : list) {
-//                    ApplyProject po = new ApplyProject();
-//                    BeanUtils.copyProperties(page, po);
-//                    applyProjectService.saveMain(po, page.getApplyContractList());
-//                }
-//                return Result.OK("文件导入成功！数据行数:" + list.size());
-//            } catch (Exception e) {
-//                log.error(e.getMessage(), e);
-//                return Result.error("文件导入失败:" + e.getMessage());
-//            } finally {
-//                try {
-//                    file.getInputStream().close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//        return Result.OK("文件导入失败！");
-//    }
+    /**
+     * 通过excel导入数据
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequiresPermissions("settlement:apply_project:importExcel")
+    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
+    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+            // 获取上传文件对象
+            MultipartFile file = entity.getValue();
+            ImportParams params = new ImportParams();
+            params.setTitleRows(2);
+            params.setHeadRows(1);
+            params.setNeedSave(true);
+            try {
+                List<ApplyProjectPage> list = ExcelImportUtil.importExcel(file.getInputStream(), ApplyProjectPage.class, params);
+                for (ApplyProjectPage page : list) {
+                    ApplyProject po = new ApplyProject();
+                    BeanUtils.copyProperties(page, po);
+                    applyProjectService.saveMain(po, page.getApplyContractList(), page.getApplyFilesList());
+                }
+                return Result.OK("文件导入成功！数据行数:" + list.size());
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                return Result.error("文件导入失败:" + e.getMessage());
+            } finally {
+                try {
+                    file.getInputStream().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return Result.OK("文件导入失败！");
+    }
 
 }

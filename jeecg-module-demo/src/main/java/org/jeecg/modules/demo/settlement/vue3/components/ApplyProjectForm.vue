@@ -19,6 +19,22 @@
               :toolbar="true"
             />
           </a-tab-pane>
+          <a-tab-pane tab="附件管理" key="applyFiles" :forceRender="true">
+            <JVxeTable
+              keep-source
+              resizable
+              ref="applyFiles"
+              v-if="applyFilesTable.show"
+              :loading="applyFilesTable.loading"
+              :columns="applyFilesTable.columns"
+              :dataSource="applyFilesTable.dataSource"
+              :height="340"
+              :rowNumber="true"
+              :rowSelection="true"
+              :disabled="formDisabled"
+              :toolbar="true"
+            />
+          </a-tab-pane>
     </a-tabs>
 
     <div style="width: 100%;text-align: center" v-if="!formDisabled">
@@ -35,8 +51,8 @@
   import { propTypes } from '/@/utils/propTypes';
   import { useJvxeMethod } from '/@/hooks/system/useJvxeMethods';
   import { VALIDATE_FAILED } from '/@/utils/common/vxeUtils';
-  import {getBpmFormSchema,applyContractColumns} from '../ApplyProject.data';
-  import {saveOrUpdate,applyContractList} from '../ApplyProject.api';
+  import {getBpmFormSchema,applyContractColumns,applyFilesColumns} from '../ApplyProject.data';
+  import {saveOrUpdate,applyContractList,applyFilesList} from '../ApplyProject.api';
 
   export default defineComponent({
     name: "ApplyProjectForm",
@@ -62,14 +78,21 @@
         return true;
       });
 
-      const refKeys = ref(['applyContract', ]);
+      const refKeys = ref(['applyContract', 'applyFiles', ]);
       const activeKey = ref('applyContract');
       const applyContract = ref();
-      const tableRefs = {applyContract, };
+      const applyFiles = ref();
+      const tableRefs = {applyContract, applyFiles, };
       const applyContractTable = reactive({
         loading: false,
         dataSource: [],
         columns:applyContractColumns,
+        show: false
+      })
+      const applyFilesTable = reactive({
+        loading: false,
+        dataSource: [],
+        columns:applyFilesColumns,
         show: false
       })
 
@@ -80,6 +103,7 @@
         return {
           ...main, // 展开
           applyContractList: allValues.tablesValue[0].tableData,
+          applyFilesList: allValues.tablesValue[1].tableData,
         }
       }
 
@@ -97,6 +121,9 @@
         requestSubTableData(applyContractList, {id: data.id}, applyContractTable, ()=>{
           applyContractTable.show = true;
         });
+        requestSubTableData(applyFilesList, {id: data.id}, applyFilesTable, ()=>{
+          applyFilesTable.show = true;
+        });
         //默认是禁用
         await setProps({disabled: formDisabled.value})
       }
@@ -111,7 +138,9 @@
         activeKey,
         handleChangeTabs,
         applyContract,
+        applyFiles,
         applyContractTable,
+        applyFilesTable,
       }
     }
   });

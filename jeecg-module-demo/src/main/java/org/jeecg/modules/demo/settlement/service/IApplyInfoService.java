@@ -1,8 +1,10 @@
 package org.jeecg.modules.demo.settlement.service;
 
+import org.jeecg.modules.demo.settlement.entity.ApplyFiles;
 import org.jeecg.modules.demo.settlement.entity.ApplyWorkflowDTO;
 import org.jeecg.modules.demo.settlement.entity.ApplyInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.jeecg.modules.demo.settlement.vo.ApplyInfoPage;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -20,9 +22,10 @@ public interface IApplyInfoService extends IService<ApplyInfo> {
 	 * 添加一对多
 	 *
 	 * @param applyInfo
-	 * @param applyWorkflowDTOList
+	 * @param requstFileList
+	 * @param changeFileList
 	 */
-	public String saveMain(ApplyInfo applyInfo,List<ApplyWorkflowDTO> applyWorkflowDTOList) ;
+	public String saveMain(ApplyInfo applyInfo,List<ApplyFiles> requstFileList, List<ApplyFiles> changeFileList) ;
 	public String saveMain(ApplyInfo applyInfo) ;
 	/**
 	 * 修改一对多
@@ -45,5 +48,7 @@ public interface IApplyInfoService extends IService<ApplyInfo> {
 	 * @param idList
 	 */
 	public void delBatchMain (Collection<? extends Serializable> idList);
+
+	public ApplyInfoPage queryByMainId(String id);
 	
 }

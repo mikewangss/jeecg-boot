@@ -2,7 +2,7 @@
   {
     "fileName": "工程施工合同",
     "bizType": "",
-    "fc": "合同文件及施工方案",
+    "fc": "2",
     "projectId": "",
     "file": "",
     "description": "",
@@ -11,7 +11,7 @@
   {
     "fileName": "补充协议",
     "bizType": "",
-    "fc": "合同文件及施工方案",
+    "fc": "2",
     "projectId": "",
     "file": "",
     "description": "",
@@ -20,7 +20,7 @@
   {
     "fileName": "完工程界面确认单",
     "bizType": "",
-    "fc": "图纸及相关资料",
+    "fc": "2",
     "projectId": "",
     "file": "",
     "description": "",
@@ -29,7 +29,7 @@
   {
     "fileName": "竣工图纸",
     "bizType": "",
-    "fc": "图纸及相关资料",
+    "fc": "2",
     "projectId": "",
     "file": "",
     "description": "",
@@ -38,7 +38,7 @@
   {
     "fileName": "工程开工报告",
     "bizType": "",
-    "fc": "质保资料",
+    "fc": "2",
     "projectId": "",
     "file": "",
     "description": "",
@@ -47,34 +47,7 @@
   {
     "fileName": "竣工报告或已完工程验收报告",
     "bizType": "",
-    "fc": "质保资料",
-    "projectId": "",
-    "file": "",
-    "description": "",
-    "flag": "1"
-  },
-  {
-    "fileName": "有关工期、质量、安全文明等方面的证明文件",
-    "bizType": "",
-    "fc": "其它资料",
-    "projectId": "",
-    "file": "",
-    "description": "",
-    "flag": "1"
-  },
-  {
-    "fileName": "水、电费缴付证明资料及相关配合费用确认单",
-    "bizType": "",
-    "fc": "其它资料",
-    "projectId": "",
-    "file": "",
-    "description": "",
-    "flag": "1"
-  },
-  {
-    "fileName": "经发、承包双方确认的甲供材领、退用清单汇总表",
-    "bizType": "",
-    "fc": "材料情况",
+    "fc": "2",
     "projectId": "",
     "file": "",
     "description": "",

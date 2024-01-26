@@ -1,10 +1,9 @@
 package org.jeecg.modules.demo.settlement.vo;
 
 import java.util.List;
-
-import org.jeecg.modules.demo.settlement.entity.ApplyFiles;
 import org.jeecg.modules.demo.settlement.entity.ApplyProject;
 import org.jeecg.modules.demo.settlement.entity.ApplyContract;
+import org.jeecg.modules.demo.settlement.entity.ApplyFiles;
 import lombok.Data;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecgframework.poi.excel.annotation.ExcelEntity;
@@ -19,7 +18,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * @Description: 项目
  * @Author: jeecg-boot
- * @Date:   2024-01-02
+ * @Date:   2024-01-03
  * @Version: V1.0
  */
 @Data
@@ -90,13 +89,16 @@ public class ApplyProjectPage {
 	@Excel(name = "附件", width = 15)
 	@ApiModelProperty(value = "附件")
     private java.lang.String file;
+	/**是否结案*/
+	@Excel(name = "是否结案", width = 15)
+	@ApiModelProperty(value = "是否结案")
+	private java.lang.String status;
 
 	@ExcelCollection(name="合同")
 	@ApiModelProperty(value = "合同")
 	private List<ApplyContract> applyContractList;
-
-	@ExcelCollection(name="项目附件")
-	@ApiModelProperty(value = "项目附件")
+	@ExcelCollection(name="附件管理")
+	@ApiModelProperty(value = "附件管理")
 	private List<ApplyFiles> applyFilesList;
 
 }

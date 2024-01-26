@@ -84,7 +84,19 @@ public class ApplyInfo implements Serializable {
 	/**金额*/
 	@Excel(name = "承包单位送审额", width = 15)
     @ApiModelProperty(value = "承包单位送审额")
-    private java.lang.Double money;
+    private java.lang.Double amounts;
+    /**初审审批金额*/
+    @Excel(name = "初审审批金额", width = 15)
+    @ApiModelProperty(value = "初审审批金额")
+    private java.lang.Double firstAmounts;
+    /**复审审批金额*/
+    @Excel(name = "复审审批金额", width = 15)
+    @ApiModelProperty(value = "复审审批金额")
+    private java.lang.Double secondAmounts;
+    /**终审审批金额*/
+    @Excel(name = "终审审批金额", width = 15)
+    @ApiModelProperty(value = "终审审批金额")
+    private java.lang.Double thirdAmounts;
 	/**债权类型*/
 	@Excel(name = "债权类型", width = 15, dicCode = "zqlx")
     @Dict(dicCode = "zqlx")
@@ -94,6 +106,10 @@ public class ApplyInfo implements Serializable {
 	@Excel(name = "说明", width = 15)
     @ApiModelProperty(value = "说明")
     private java.lang.String remark;
+    /**说明*/
+    @Excel(name = "专业", width = 15)
+    @ApiModelProperty(value = "专业")
+    private java.lang.String major;
 	/**附件*/
 	@Excel(name = "附件", width = 15)
     @ApiModelProperty(value = "附件")

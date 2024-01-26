@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.demo.settlement.mapper.ApplyInfoMapper">
-
+    <resultMap id="ApplyInfoPageModel" type="org.jeecg.modules.demo.settlement.vo.ApplyInfoPage" >
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="amounts" property="amounts" jdbcType="VARCHAR"/>
+        <result column="review_date" property="reviewDate" jdbcType="VARCHAR"/>
+        <result column="project_id" property="projectId" jdbcType="VARCHAR"/>
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="unit" property="unit" jdbcType="VARCHAR"/>
+        <result column="bidder" property="bidder" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="contract_num" property="contractNum" jdbcType="VARCHAR"/>
+        <result column="contract_name" property="contractName" jdbcType="VARCHAR"/>
+        <result column="sign_date" property="signDate" jdbcType="VARCHAR"/>
+        <result column="total_price" property="totalPrice" jdbcType="VARCHAR"/>
+        <result column="start_date" property="startDate" jdbcType="VARCHAR"/>
+        <result column="end_date" property="endDate" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="queryByMainId"  resultMap="ApplyInfoPageModel">
+        SELECT a.id,a.name,a.create_time,a.create_by,a.amounts,a.review_date,a.first_amounts,a.second_amounts,a.third_amounts,
+               b.id as project_id,b.name as project_name,b.code,b.status,
+               (select depart_name from sys_depart where id=b.unit) as unit,
+               (select depart_name from sys_depart where id=b.bidder) as bidder,
+               c.contract_num,c.contract_name,c.sign_date,c.total_price,c.start_date,c.end_date
+        FROM  apply_info a left join apply_project b on a.project_id=b.id left join apply_contract c on a.contract_id=c.id
+        WHERE
+            a.id = #{id} 	</select>
 </mapper>

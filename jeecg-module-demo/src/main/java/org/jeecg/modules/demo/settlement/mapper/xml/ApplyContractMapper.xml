@@ -6,11 +6,11 @@
 		DELETE 
 		FROM  apply_contract 
 		WHERE
-			 contract_id = #{mainId} 	</delete>
+			 project_id = #{mainId} 	</delete>
 	
 	<select id="selectByMainId" parameterType="java.lang.String" resultType="org.jeecg.modules.demo.settlement.entity.ApplyContract">
 		SELECT * 
 		FROM  apply_contract
 		WHERE
-			 contract_id = #{mainId} 	</select>
+			 project_id = #{mainId} 	</select>
 </mapper>

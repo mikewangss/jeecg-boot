@@ -6,12 +6,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.aspect.annotation.PermissionData;
-import org.jeecg.modules.demo.settlement.entity.ApplyProcessMapping;
-import org.jeecg.modules.demo.settlement.entity.ApplyWorkflowDTO;
-import org.jeecg.modules.demo.settlement.entity.ProcessDTO;
+import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.modules.demo.settlement.entity.*;
+import org.jeecg.modules.demo.settlement.service.IApplyFilesService;
+import org.jeecg.modules.demo.settlement.service.IApplyProjectService;
 import org.jeecg.modules.demo.settlement.service.impl.ApplyProcessServiceImpl;
 import org.jeecg.modules.demo.settlement.util.HttpGetAndPost;
+import org.jeecg.modules.flowable.apithird.business.entity.FlowMyBusiness;
+import org.jeecg.modules.flowable.apithird.business.service.IFlowMyBusinessService;
+import org.jeecg.modules.flowable.apithird.business.service.impl.FlowMyBusinessServiceImpl;
+import org.jeecg.modules.flowable.apithird.service.FlowCommonService;
+import org.jeecg.modules.flowable.apithird.service.IFlowThirdService;
+import org.jeecg.modules.flowable.service.IFlowDefinitionService;
+import org.jeecg.modules.system.entity.SysDepart;
+import org.jeecg.modules.system.service.ISysDepartService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -22,7 +33,6 @@ import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.demo.settlement.entity.ApplyInfo;
 import org.jeecg.modules.demo.settlement.vo.ApplyInfoPage;
 import org.jeecg.modules.demo.settlement.service.IApplyInfoService;
 import org.jeecg.modules.demo.settlement.service.IApplyProcessService;
@@ -42,6 +52,8 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 
+import static org.jeecg.modules.demo.settlement.util.GetJsonData.readJsonFile;
+
 
 /**
  * @Description: 结算申请
@@ -57,12 +69,23 @@ public class ApplyInfoController {
     @Autowired
     private IApplyInfoService applyInfoService;
     @Autowired
-    private IApplyProcessService applyWorkflowService;
-    @Autowired
     HttpGetAndPost httpGetAndPost;
     @Autowired
     private IApplyProcessService applyProcessService;
-
+    @Autowired
+    private IApplyFilesService applyFilesService;
+    @Autowired
+    FlowCommonService flowCommonService;
+    @Autowired
+    private IFlowDefinitionService flowDefinitionService;
+    @Autowired
+    private FlowMyBusinessServiceImpl flowMyBusinessService;
+    @Autowired
+    private IApplyProjectService applyProjectService;
+    @Autowired
+    private ISysDepartService sysDepartService;
+    @Autowired
+    private IFlowThirdService iFlowThirdService;
     /**
      * 分页列表查询
      *
@@ -81,9 +104,11 @@ public class ApplyInfoController {
                                                   @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                   HttpServletRequest req) {
         QueryWrapper<ApplyInfo> queryWrapper = new QueryWrapper<ApplyInfo>();
+        String username = iFlowThirdService.getLoginUser().getUsername();
         //编程方式，给queryWrapper装载数据权限规则,,request.MENU_DATA_AUTHOR_RULES
         QueryGenerator.installAuthMplus(queryWrapper, ApplyInfo.class);
         Page<ApplyInfo> page = new Page<ApplyInfo>(pageNo, pageSize);
+        queryWrapper.eq("create_by", username);
         IPage<ApplyInfo> pageList = applyInfoService.page(page, queryWrapper);
         return Result.OK(pageList);
 //		QueryWrapper<ApplyInfo> queryWrapper = QueryGenerator.initQueryWrapper(applyInfo, req.getParameterMap());
@@ -91,7 +116,34 @@ public class ApplyInfoController {
 //		IPage<ApplyInfo> pageList = applyInfoService.page(page, queryWrapper);
 //		return Result.OK(pageList);
     }
+    /**
+     * 结算材料完整性验证
+     *
+     * @param applyInfo
+     * @return
+     */
+    @AutoLog(value = "结算材料完整性验证")
+    @ApiOperation(value = "结算材料完整性验证", notes = "结算材料完整性验证")
+    @PostMapping(value = "/integrityVerification")
+    public Result<String> integrityVerification(@RequestBody ApplyInfo applyInfo) throws IOException {
+        //校验项目附件是否已上传
+        String errorMsg = "";
 
+        List<ApplyFiles> applyFilesList = applyFilesService.selectByMainId(applyInfo.getProjectId());
+        ApplyProject applyProject = applyProjectService.getById(applyInfo.getProjectId());
+        for (ApplyFiles applyFiles :
+                applyFilesList) {
+            boolean f =StringUtil.isNullOrEmpty(applyFiles.getFile());
+            if (StringUtils.equalsIgnoreCase(applyFiles.getFlag(),"1")  && f) {
+                errorMsg += applyFiles.getFileName() + "/n";
+            }
+        }
+        if (!StringUtil.isNullOrEmpty(errorMsg)) {
+            return Result.error("结算材料缺失，请在项目管理中上传必填附件后再发起申请！");
+        }
+
+        return Result.OK("ok！");
+    }
     /**
      * 添加
      *
@@ -102,24 +154,24 @@ public class ApplyInfoController {
     @ApiOperation(value = "结算申请-添加", notes = "结算申请-添加")
     @RequiresPermissions("settlement:apply_info:add")
     @PostMapping(value = "/add")
-    public Result<String> add(@RequestBody ApplyInfo applyInfo) throws IOException {
-//        ObjectMapper mapper = new ObjectMapper();
-////        HttpGetAndPost httpGetAndPost = new HttpGetAndPost();
-//        String jsonStr = mapper.writeValueAsString(applyInfoPage);
-//        System.out.println(jsonStr);
-//        //把转好的数据保存到文件中
-//        ApplyInfo applyInfo = new ApplyInfo();
-//        BeanUtils.copyProperties(applyInfoPage, applyInfo);
-        String apply_id = applyInfoService.saveMain(applyInfo);
+    public Result<String> add(@RequestBody ApplyInfoPage applyInfoPage) throws IOException {
+        ApplyInfo applyInfo = new ApplyInfo();
+        BeanUtils.copyProperties(applyInfoPage, applyInfo);
+        String apply_id = applyInfoService.saveMain(applyInfo,applyInfoPage.getRequestFileList(),applyInfoPage.getChangeFileList());
+
         LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         String username = sysUser.getUsername();
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("taskUser", username);
-        map.put("money", applyInfo.getMoney());
-//        HttpGetAndPost httpGetAndPost = new HttpGetAndPost();
-        String processInstanceId = httpGetAndPost.httpPost("http://127.0.0.1:8081/workflow/start", map);
-        ApplyProcessMapping applyProcessMapping = new ApplyProcessMapping(apply_id, processInstanceId);
-        applyProcessService.save(applyProcessMapping);
+        HashMap<String, Object> variables = new HashMap<>();
+        variables.put("dataId", apply_id);
+        variables.put("taskUser", username);
+        variables.put("major", applyInfo.getMajor());
+        //这个orgCode能否前段传过来？
+        ApplyProject applyProject = applyProjectService.getById(applyInfoPage.getProjectId());
+        SysDepart sysDepart = sysDepartService.getDepartById(applyProject.getUnit());
+        variables.put("orgCode", sysDepart.getOrgCode());
+        //流程关联结算表单
+        flowCommonService.initActBusiness("供应商结算申请流程",apply_id,"applyInfoService","diagram_Process_1704786066374","166d968d-b5b6-11ee-9d13-e02be9c77121");
+        flowDefinitionService.startProcessInstanceByKey("diagram_Process_1704786066374", variables);
         return Result.OK("添加成功！");
     }
 
@@ -140,7 +192,7 @@ public class ApplyInfoController {
         if (applyInfoEntity == null) {
             return Result.error("未找到对应数据");
         }
-        applyInfoService.updateMain(applyInfo, applyInfoPage.getApplyWorkflowDTOList());
+        applyInfoService.updateById(applyInfo);
         return Result.OK("编辑成功!");
     }
 
@@ -182,17 +234,18 @@ public class ApplyInfoController {
      * @return
      */
     //@AutoLog(value = "结算申请-通过id查询")
-    @ApiOperation(value = "结算申请-通过id查询", notes = "结算申请-通过id查询")
-    @GetMapping(value = "/queryByProcessId")
-    public Result<ApplyInfo> queryByProcessId(@RequestParam(name = "process_id", required = true) String process_id) {
-        ApplyProcessMapping applyProcessMapping = applyProcessService.queryByProcessId(process_id);
-        ApplyInfo applyInfo = applyInfoService.getById(applyProcessMapping.getApply_id());
-        if (applyInfo == null) {
-            return Result.error("未找到对应数据");
-        }
-        return Result.OK(applyInfo);
+//    @ApiOperation(value = "结算申请-通过id查询", notes = "结算申请-通过id查询")
+//    @GetMapping(value = "/queryByProcessId")
+//    public Result<ApplyInfoPage> queryByProcessId(@RequestParam(name = "process_id", required = true) String process_id) {
+//        FlowMyBusiness flowMyBusiness = flowMyBusinessService.getByProcessInstanceId(process_id);
+//        ApplyInfoPage applyInfoPage = applyInfoService.queryByMainId(flowMyBusiness.getDataId());
+//        if (applyInfoPage == null) {
+//            return Result.error("未找到对应数据");
+//        }
+//        return Result.OK(applyInfoPage);
+//
+//    }
 
-    }
 
     /**
      * 通过id查询
@@ -222,7 +275,7 @@ public class ApplyInfoController {
     @ApiOperation(value = "结算申请-通过id查询", notes = "结算申请-通过id查询")
     @GetMapping(value = "/queryProcessId")
     public Result<String> queryProcessId(@RequestParam(name = "id", required = true) String id) {
-        ApplyProcessMapping applyProcessMapping = applyWorkflowService.getById(id);
+        ApplyProcessMapping applyProcessMapping = applyProcessService.getById(id);
         return Result.OK(applyProcessMapping.getProcess_instance_id());
 
     }
@@ -292,7 +345,7 @@ public class ApplyInfoController {
                 for (ApplyInfoPage page : list) {
                     ApplyInfo po = new ApplyInfo();
                     BeanUtils.copyProperties(page, po);
-                    applyInfoService.saveMain(po, page.getApplyWorkflowDTOList());
+                    applyInfoService.saveOrUpdate(po);
                 }
                 return Result.OK("文件导入成功！数据行数:" + list.size());
             } catch (Exception e) {

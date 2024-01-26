@@ -17,7 +17,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * @Description: 合同
  * @Author: jeecg-boot
- * @Date:   2024-01-02
+ * @Date:   2024-01-03
  * @Version: V1.0
  */
 @ApiModel(value="apply_contract对象", description="合同")
@@ -67,6 +67,10 @@ public class ApplyContract implements Serializable {
 	@Excel(name = "合同类型", width = 15, dicCode = "contract_type")
     @ApiModelProperty(value = "合同类型")
     private java.lang.String type;
+    /**专业类型*/
+    @Excel(name = "专业类型", width = 15, dicCode = "major_type")
+    @ApiModelProperty(value = "专业类型")
+    private java.lang.String major;
 	/**合同状态*/
 	@Excel(name = "合同状态", width = 15, dicCode = "contract_status")
     @ApiModelProperty(value = "合同状态")
@@ -90,8 +94,4 @@ public class ApplyContract implements Serializable {
 	@Excel(name = "总价", width = 15)
     @ApiModelProperty(value = "总价")
     private java.lang.Double totalPrice;
-    /**合同附件*/
-    @Excel(name = "合同附件", width = 15)
-    @ApiModelProperty(value = "合同附件")
-    private java.lang.Double file;
 }

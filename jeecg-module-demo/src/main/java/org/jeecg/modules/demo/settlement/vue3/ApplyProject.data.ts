@@ -272,6 +272,69 @@ export const applyContractColumns: JVxeColumn[] = [
         ],
     },
   ]
+export const applyFilesColumns: JVxeColumn[] = [
+    {
+      title: '文件名称',
+      key: 'fileName',
+      type: JVxeTypes.input,
+      width:"200px",
+      placeholder: '请输入${title}',
+      defaultValue:'',
+    },
+    {
+      title: '文件类型',
+      key: 'bizType',
+      type: JVxeTypes.input,
+      width:"200px",
+      placeholder: '请输入${title}',
+      defaultValue:'',
+    },
+    {
+      title: '是否可用',
+      key: 'flag',
+      type: JVxeTypes.checkbox,
+      customValue: [0,1],
+      width:"200px",
+      placeholder: '请输入${title}',
+      defaultValue:'',
+    },
+    {
+      title: '描述',
+      key: 'description',
+      type: JVxeTypes.input,
+      width:"200px",
+      placeholder: '请输入${title}',
+      defaultValue:'',
+    },
+    {
+      title: '分册',
+      key: 'fc',
+      type: JVxeTypes.select,
+      options:[],
+      dictCode:"apply_fc",
+      width:"200px",
+      placeholder: '请输入${title}',
+      defaultValue:'',
+    },
+    {
+      title: '文件',
+      key: 'file',
+      type: JVxeTypes.file,
+      token:true,
+      responseName:"message",
+      width:"200px",
+      placeholder: '请选择文件',
+      defaultValue:'',
+    },
+    {
+      title: '项目外键',
+      key: 'projectId',
+      type: JVxeTypes.input,
+      width:"200px",
+      placeholder: '请输入${title}',
+      defaultValue:'',
+    },
+  ]
 
 
 /**

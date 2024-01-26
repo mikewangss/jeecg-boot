@@ -12,6 +12,7 @@ enum Api {
   importExcel = '/settlement/applyProject/importExcel',
   exportXls = '/settlement/applyProject/exportXls',
   applyContractList = '/settlement/applyProject/queryApplyContractByMainId',
+  applyFilesList = '/settlement/applyProject/queryApplyFilesByMainId',
 }
 /**
  * 导出api
@@ -28,6 +29,11 @@ export const getImportUrl = Api.importExcel;
  * @param params
  */
 export const applyContractList = Api.applyContractList;
+/**
+ * 查询子表数据
+ * @param params
+ */
+export const applyFilesList = Api.applyFilesList;
 /**
  * 列表接口
  * @param params

@@ -18,7 +18,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * @Description: 项目
  * @Author: jeecg-boot
- * @Date:   2024-01-02
+ * @Date:   2024-01-03
  * @Version: V1.0
  */
 @ApiModel(value="apply_project对象", description="项目")
@@ -92,4 +92,8 @@ public class ApplyProject implements Serializable {
 	@Excel(name = "附件", width = 15)
     @ApiModelProperty(value = "附件")
     private java.lang.String file;
+    /**是否结案*/
+    @Excel(name = "是否结案", width = 15)
+    @ApiModelProperty(value = "是否结案")
+    private java.lang.String status;
 }

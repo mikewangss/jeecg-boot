@@ -83,14 +83,19 @@ public class ApplySupplier implements Serializable {
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "营业执照开始日期")
-    private java.util.Date businessLicenseStartDate;
+    private java.lang.String businessLicenseStartDate;
 	/**营业执照结束日期*/
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "营业执照结束日期")
-    private java.util.Date businessLicenseEndDate;
+    private java.lang.String businessLicenseEndDate;
 	/**营业执照*/
 	@Excel(name = "营业执照", width = 15)
     @ApiModelProperty(value = "营业执照")
     private java.lang.String businessLicenseFile;
+
+    /**状态*/
+    @Excel(name = "状态", width = 15)
+    @ApiModelProperty(value = "状态")
+    private java.lang.String status;
 }
