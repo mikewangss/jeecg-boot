@@ -29,10 +29,15 @@
             <groupId>org.jeecgframework.boot</groupId>
             <artifactId>jeecg-system-biz</artifactId>
             <!-- 排除demo模块，demo模块采用微服务独立启动 -->
+            <!-- 排除flowable模块，flowable模块采用微服务独立启动 -->
             <exclusions>
                 <exclusion>
                     <groupId>org.jeecgframework.boot</groupId>
                     <artifactId>jeecg-module-demo</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jeecgframework.boot</groupId>
+                    <artifactId>jeecg-boot-module-flowable</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

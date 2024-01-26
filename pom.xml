@@ -18,7 +18,7 @@
 		<developerConnection>http://guojusoft.com</developerConnection>
 		<url>http://www.jeecg.com/vip</url>
 	</scm>
-	
+
   	<parent>
 	    <groupId>org.springframework.boot</groupId>
 	    <artifactId>spring-boot-starter-parent</artifactId>
@@ -70,8 +70,8 @@
 		<dom4j.version>1.6.1</dom4j.version>
 		<qiniu-java-sdk.version>7.4.0</qiniu-java-sdk.version>
 		<!-- Log4j2爆雷漏洞 -->
-		<log4j2.version>2.17.0</log4j2.version>
-		<logback.version>1.2.9</logback.version>
+<!--		<log4j2.version>2.17.0</log4j2.version>-->
+<!--		<logback.version>1.2.9</logback.version>-->
 		<!-- seata -->
 		<seata.version>1.5.2</seata.version>
 	</properties>
@@ -80,6 +80,7 @@
         <module>jeecg-boot-base-core</module>
         <module>jeecg-module-demo</module>
         <module>jeecg-module-system</module>
+		<module>jeecg-boot-module-flowable</module>
     </modules>
 
 	<repositories>
