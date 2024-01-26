@@ -20,10 +20,15 @@ management:
         include: metrics,httptrace
 
 spring:
+  devtools:
+    restart:
+      enabled: true  #设置开启热部署，false即不开启热部署
+#      additional-paths: src/main/java #指定热部署的目录
+#      exclude: test/**  #指定目录不更新
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 1024MB
+      max-request-size: 1024MB
   mail:
     host: smtp.163.com
     username: jeecgos@163.com
@@ -135,7 +140,7 @@ spring:
         master:
           url: jdbc:mysql://127.0.0.1:3306/jeecg-boot?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
           username: root
-          password: root
+          password: yurun123#
           driver-class-name: com.mysql.cj.jdbc.Driver
           # 多数据源配置
           #multi-datasource1:
@@ -194,8 +199,8 @@ jeecg:
     excludeUrls: /test/jeecgDemo/demo3,/test/jeecgDemo/redisDemo/**,/jmreport/bigscreen2/**
   #阿里云oss存储和大鱼短信秘钥配置
   oss:
-    accessKey: ??
-    secretKey: ??
+    accessKey: LTAI5t5oGV7Xpj23R6rcWKzE
+    secretKey: b7SLAJY3q53LmSCC9Rk0ud32jbp45T
     endpoint: oss-cn-beijing.aliyuncs.com
     bucketName: jeecgdev
   # ElasticSearch 6设置
