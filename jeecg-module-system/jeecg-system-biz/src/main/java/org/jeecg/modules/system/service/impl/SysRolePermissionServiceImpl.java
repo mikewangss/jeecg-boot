@@ -5,7 +5,9 @@ import java.util.*;
 import org.jeecg.common.util.IpUtils;
 import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.system.entity.SysPermissionDataRule;
 import org.jeecg.modules.system.entity.SysRolePermission;
+import org.jeecg.modules.system.mapper.SysPermissionDataRuleMapper;
 import org.jeecg.modules.system.mapper.SysRolePermissionMapper;
 import org.jeecg.modules.system.service.ISysRolePermissionService;
 
@@ -15,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -27,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Service
 public class SysRolePermissionServiceImpl extends ServiceImpl<SysRolePermissionMapper, SysRolePermission> implements ISysRolePermissionService {
+	@Resource
+	private SysPermissionDataRuleMapper sysPermissionDataRuleMapper;
 
 	@Override
 	public void saveRolePermission(String roleId, String permissionIds) {
@@ -42,7 +47,7 @@ public class SysRolePermissionServiceImpl extends ServiceImpl<SysRolePermissionM
 		LambdaQueryWrapper<SysRolePermission> query = new QueryWrapper<SysRolePermission>().lambda().eq(SysRolePermission::getRoleId, roleId);
 		this.remove(query);
 		List<SysRolePermission> list = new ArrayList<SysRolePermission>();
-        String[] arr = permissionIds.split(",");
+		String[] arr = permissionIds.split(",");
 		for (String p : arr) {
 			if(oConvertUtils.isNotEmpty(p)) {
 				SysRolePermission rolepms = new SysRolePermission(roleId, p);
@@ -73,12 +78,21 @@ public class SysRolePermissionServiceImpl extends ServiceImpl<SysRolePermissionM
 					SysRolePermission rolepms = new SysRolePermission(roleId, p);
 					rolepms.setOperateDate(new Date());
 					rolepms.setOperateIp(ip);
+					String uniquedataRuleId = "";
+					//2.根据permission_id获取所有的sys_permission_data_role的data_role_id,
+					List<SysPermissionDataRule> permRuleList = sysPermissionDataRuleMapper.selectList(new QueryWrapper<SysPermissionDataRule>().eq("permission_id", rolepms.getPermissionId()));
+					for (SysPermissionDataRule sysPermissionDataRule : permRuleList
+					) {
+						// 使用逗号重新构建字符串
+						uniquedataRuleId += "," + sysPermissionDataRule.getId();
+					}
+					rolepms.setDataRuleIds(uniquedataRuleId);
 					list.add(rolepms);
 				}
 			}
 			this.saveBatch(list);
 		}
-		
+
 		List<String> delete = getDiff(permissionIds,lastPermissionIds);
 		if(delete!=null && delete.size()>0) {
 			for (String permissionId : delete) {
@@ -86,7 +100,7 @@ public class SysRolePermissionServiceImpl extends ServiceImpl<SysRolePermissionM
 			}
 		}
 	}
-	
+
 	/**
 	 * 从diff中找出main中没有的元素
 	 * @param main
@@ -100,7 +114,7 @@ public class SysRolePermissionServiceImpl extends ServiceImpl<SysRolePermissionM
 		if(oConvertUtils.isEmpty(main)) {
 			return Arrays.asList(diff.split(","));
 		}
-		
+
 		String[] mainArr = main.split(",");
 		String[] diffArr = diff.split(",");
 		Map<String, Integer> map = new HashMap(5);

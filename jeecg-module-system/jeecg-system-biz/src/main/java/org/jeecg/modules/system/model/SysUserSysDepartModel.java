@@ -14,6 +14,7 @@ public class SysUserSysDepartModel {
 
     private String id;
     private String realname;
+    private String username;
     private String workNo;
     private String post;
     private String telephone;

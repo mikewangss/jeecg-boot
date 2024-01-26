@@ -1,18 +1,23 @@
 package org.jeecg.modules.system.service.impl;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.system.entity.SysPermission;
 import org.jeecg.modules.system.entity.SysPermissionDataRule;
+import org.jeecg.modules.system.entity.SysRolePermission;
 import org.jeecg.modules.system.mapper.SysPermissionDataRuleMapper;
 import org.jeecg.modules.system.mapper.SysPermissionMapper;
+import org.jeecg.modules.system.mapper.SysRolePermissionMapper;
 import org.jeecg.modules.system.service.ISysPermissionDataRuleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +40,8 @@ public class SysPermissionDataRuleImpl extends ServiceImpl<SysPermissionDataRule
 
 	@Resource
 	private SysPermissionMapper sysPermissionMapper;
-
+	@Resource
+	private SysRolePermissionMapper sysRolePermissionMapper;
 	/**
 	 * 根据菜单id查询其对应的权限数据
 	 */
@@ -88,10 +94,29 @@ public class SysPermissionDataRuleImpl extends ServiceImpl<SysPermissionDataRule
 	public void savePermissionDataRule(SysPermissionDataRule sysPermissionDataRule) {
 		this.save(sysPermissionDataRule);
 		SysPermission permission = sysPermissionMapper.selectById(sysPermissionDataRule.getPermissionId());
-        boolean flag = permission != null && (permission.getRuleFlag() == null || permission.getRuleFlag().equals(CommonConstant.RULE_FLAG_0));
-        if(flag) {
+		boolean flag = permission != null && (permission.getRuleFlag() == null || permission.getRuleFlag().equals(CommonConstant.RULE_FLAG_0));
+		if(flag) {
 			permission.setRuleFlag(CommonConstant.RULE_FLAG_1);
 			sysPermissionMapper.updateById(permission);
+		}
+		//2.获取新增的data_role_id, 根据permission_id更新所有的sys_role_permission
+		LambdaUpdateWrapper<SysRolePermission> updateWrapper = new UpdateWrapper().lambda();
+		updateWrapper.eq(SysRolePermission::getPermissionId, sysPermissionDataRule.getPermissionId());
+		List<SysRolePermission> permRuleList = sysRolePermissionMapper.selectList(new QueryWrapper<SysRolePermission>().eq("permission_id",sysPermissionDataRule.getPermissionId()));
+		for (SysRolePermission sysRolePermission : permRuleList
+		) {
+			Set<String> dataRuleIdSet = new HashSet<>();
+			String dataRuleId = sysRolePermission.getDataRuleIds();
+			if (dataRuleId != null) {
+				String[] dataRuleIds = dataRuleId.split(",");
+				dataRuleIdSet.addAll(Arrays.asList(dataRuleIds));
+			}
+			// 将新的权限添加到 Set 中
+			dataRuleIdSet.add(sysPermissionDataRule.getId());
+			// 使用逗号重新构建字符串
+			String uniquedataRuleId = String.join(",", dataRuleIdSet);
+			sysRolePermission.setDataRuleIds(uniquedataRuleId);
+			sysRolePermissionMapper.update(sysRolePermission, updateWrapper);
 		}
 	}
 
@@ -111,7 +136,7 @@ public class SysPermissionDataRuleImpl extends ServiceImpl<SysPermissionDataRule
 				}
 			}
 		}
-		
+
 	}
 
 }

@@ -109,6 +109,7 @@
 	<select id="getUserByOrgCode" resultType="org.jeecg.modules.system.model.SysUserSysDepartModel">
 		SELECT
 			sys_user.id AS id,
+			sys_user.username AS username,
 			sys_user.realname AS realname,
 			sys_user.avatar AS avatar,
 			sys_user.sex AS sex,

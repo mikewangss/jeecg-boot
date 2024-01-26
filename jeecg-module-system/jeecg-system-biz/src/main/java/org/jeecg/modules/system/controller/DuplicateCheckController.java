@@ -24,41 +24,50 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @RestController
 @RequestMapping("/sys/duplicate")
-@Api(tags="重复校验")
+@Api(tags = "重复校验")
 public class DuplicateCheckController {
 
-	@Autowired
-	ISysDictService sysDictService;
+    @Autowired
+    ISysDictService sysDictService;
 
-	/**
-	 * 校验数据是否在系统中是否存在
-	 * 
-	 * @return
-	 */
-	@RequestMapping(value = "/check", method = RequestMethod.GET)
-	@ApiOperation("重复校验接口")
-	public Result<String> doDuplicateCheck(DuplicateCheckVo duplicateCheckVo, HttpServletRequest request) {
-		log.debug("----duplicate check------："+ duplicateCheckVo.toString());
-		
-		// 1.填值为空，直接返回
-		if(StringUtils.isEmpty(duplicateCheckVo.getFieldVal())){
-			Result rs = new Result();
-			rs.setCode(500);
-			rs.setSuccess(true);
-			rs.setMessage("数据为空,不作处理！");
-			return rs;
-		}
-		
-		// 2.返回结果
-		if (sysDictService.duplicateCheckData(duplicateCheckVo)) {
-			// 该值可用
-			return Result.ok("该值可用！");
-		} else {
-			// 该值不可用
-			log.info("该值不可用，系统中已存在！");
-			return Result.error("该值不可用，系统中已存在！");
-		}
-	}
+    /**
+     * 校验数据是否在系统中是否存在
+     *
+     * @return
+     */
+    @RequestMapping(value = "/check", method = RequestMethod.GET)
+    @ApiOperation("重复校验接口")
+    public Result<String> doDuplicateCheck(DuplicateCheckVo duplicateCheckVo, HttpServletRequest request) {
+        log.debug("----duplicate check------：" + duplicateCheckVo.toString());
+        String name = "该值";
+        if (StringUtils.equalsIgnoreCase(duplicateCheckVo.getFieldName(), "phone") || StringUtils.equalsIgnoreCase(duplicateCheckVo.getFieldName(), "mobile")) {
+            name = "手机号";
+        } else if (StringUtils.equalsIgnoreCase(duplicateCheckVo.getFieldName(), "username")) {
+            name = "用户名";
+        } else if (StringUtils.equalsIgnoreCase(duplicateCheckVo.getFieldName(), "email")) {
+            name = "邮箱";
+        } else {
+
+        }
+        // 1.填值为空，直接返回
+        if (StringUtils.isEmpty(duplicateCheckVo.getFieldVal())) {
+            Result rs = new Result();
+            rs.setCode(500);
+            rs.setSuccess(true);
+            rs.setMessage("数据为空,不作处理！");
+            return rs;
+        }
+
+        // 2.返回结果
+        if (sysDictService.duplicateCheckData(duplicateCheckVo)) {
+            // 该值可用
+            return Result.ok(String.format("%s可用", name));
+        } else {
+            // 该值不可用
+            log.info(String.format("%s不可用，系统中已存在", name));
+            return Result.error(String.format("%s不可用，系统中已存在", name));
+        }
+    }
 
 
 }

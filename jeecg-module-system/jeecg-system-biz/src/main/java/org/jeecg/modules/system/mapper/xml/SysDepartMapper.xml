@@ -120,7 +120,13 @@
         </if>
         order by create_time desc
     </select>
-    
+    <!--根据部门名称和租户id获取部门数据-->
+    <select id="getOneDepartByName" resultType="java.lang.String">
+        SELECT id,depart_name FROM sys_depart
+        where
+        depart_name = #{departName}
+        order by create_time desc
+    </select>
     <!--根据用户id获取用户id和部门名称-->
     <select id="getUserDepartByTenantUserId" resultType="org.jeecg.modules.system.vo.SysUserDepVo">
         SELECT sd.depart_name, sud.user_id

@@ -61,6 +61,9 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 			sysAnnouncementMapper.insert(sysAnnouncement);
 			// 2.插入用户通告阅读标记表记录
 			String userId = sysAnnouncement.getUserIds();
+			if (!userId.endsWith(",")) {
+				userId = userId + ",";
+			}
 			String[] userIds = userId.substring(0, (userId.length()-1)).split(",");
 			String anntId = sysAnnouncement.getId();
 			Date refDate = new Date();

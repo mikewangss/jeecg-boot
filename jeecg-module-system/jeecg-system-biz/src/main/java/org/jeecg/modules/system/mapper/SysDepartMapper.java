@@ -144,6 +144,7 @@ public interface SysDepartMapper extends BaseMapper<SysDepart> {
 	 * @return
 	 */
 	List<SysDepart> getDepartByName(@Param("departName")String departName, @Param("tenantId")Integer tenantId,@Param("parentId") String parentId);
+	String getOneDepartByName(@Param("departName")String departName);
 
 	/**
 	 * 根据部门id获取用户id和部门名称

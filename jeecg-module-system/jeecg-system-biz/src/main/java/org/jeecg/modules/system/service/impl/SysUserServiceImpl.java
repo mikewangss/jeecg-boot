@@ -614,7 +614,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		//情况3：根据用户信息查询，该用户已冻结
 		if (CommonConstant.USER_FREEZE.equals(sysUser.getStatus())) {
 			baseCommonService.addLog("用户登录失败，用户名:" + sysUser.getUsername() + "已冻结！", CommonConstant.LOG_TYPE_1, null);
-			result.error500("该用户已冻结");
+			result.error500("该用户暂时不可用");
 			return result;
 		}
 		return result;
