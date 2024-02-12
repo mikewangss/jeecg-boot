@@ -97,6 +97,10 @@ public class ApplyInfo implements Serializable {
     @Excel(name = "终审审批金额", width = 15)
     @ApiModelProperty(value = "终审审批金额")
     private java.lang.Double thirdAmounts;
+    /**总面积*/
+    @Excel(name = "总面积", width = 15)
+    @ApiModelProperty(value = "总面积")
+    private java.lang.Double totalArea;
 	/**债权类型*/
 	@Excel(name = "债权类型", width = 15, dicCode = "zqlx")
     @Dict(dicCode = "zqlx")

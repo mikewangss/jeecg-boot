@@ -17,7 +17,7 @@ public enum Vue3MessageHrefEnum {
     /**
      * 流程催办
      */
-    BPM("bpm", "/task/myHandleTaskInfo"),
+    BPM("bpm", "/settlement/workflow/todoList"),
     
     /**
      * 系统消息通知
@@ -27,12 +27,12 @@ public enum Vue3MessageHrefEnum {
     /**
      * 流程抄送任务
      */
-    BPM_VIEW("bpm_cc", "/task/myHandleTaskInfo"),
+    BPM_VIEW("bpm_cc", "/settlement/workflow/todoList"),
 
     /**
      * 节点通知
      */
-    BPM_TASK("bpm_task", "/task/myHandleTaskInfo"),
+    BPM_TASK("bpm_task", "/settlement/workflow/todoList"),
 
     /**
      * 邮件消息

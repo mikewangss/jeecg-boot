@@ -185,7 +185,7 @@ jeecg:
   #签名拦截接口
   signUrls: /sys/dict/getDictItems/*,/sys/dict/loadDict/*,/sys/dict/loadDictOrderByValue/*,/sys/dict/loadDictItem/*,/sys/dict/loadTreeData,/sys/api/queryTableDictItemsByCode,/sys/api/queryFilterTableDictInfo,/sys/api/queryTableDictByKeys,/sys/api/translateDictFromTable,/sys/api/translateDictFromTableByKeys
   # 本地：local、Minio：minio、阿里云：alioss
-  uploadType: local
+  uploadType: alioss
   # 前端访问地址
   domainUrl:
     pc: http://localhost:3100
@@ -201,8 +201,8 @@ jeecg:
   oss:
     accessKey: LTAI5t5oGV7Xpj23R6rcWKzE
     secretKey: b7SLAJY3q53LmSCC9Rk0ud32jbp45T
-    endpoint: oss-cn-beijing.aliyuncs.com
-    bucketName: jeecgdev
+    endpoint: oss-cn-wulanchabu.aliyuncs.com
+    bucketName: yurundev
   # ElasticSearch 6设置
   elasticsearch:
     cluster-name: jeecg-ES

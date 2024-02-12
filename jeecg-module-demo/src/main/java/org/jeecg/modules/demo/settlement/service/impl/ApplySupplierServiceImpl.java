@@ -2,6 +2,7 @@ package org.jeecg.modules.demo.settlement.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.util.PasswordUtil;
 import org.jeecg.common.util.oConvertUtils;
@@ -99,7 +100,17 @@ public class ApplySupplierServiceImpl extends ServiceImpl<ApplySupplierMapper, A
 
     @Override
     public void afterFlowHandle(FlowMyBusiness business) {
-
+        //流程操作后做些什么
+        business.getTaskNameId();//接下来审批的节点
+        business.getValues();//前端传进来的参数
+        String actStatus = business.getActStatus();//流程状态 ActStatus.java
+        SysUser sysUser = sysUserService.getUserByName(business.getProposer());
+        if(StringUtils.equals("审批通过",actStatus)){
+            sysUserService.updateStatus(sysUser.getId(),CommonConstant.STATUS_1);
+            ApplySupplier applySupplier= getById(business.getDataId());
+            applySupplier.setStatus(CommonConstant.STATUS_1);//待审核
+            saveOrUpdate(applySupplier);
+        }
     }
 
     @Override

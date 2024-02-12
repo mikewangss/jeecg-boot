@@ -21,7 +21,7 @@
         <result column="end_date" property="endDate" jdbcType="VARCHAR"/>
     </resultMap>
     <select id="queryByMainId"  resultMap="ApplyInfoPageModel">
-        SELECT a.id,a.name,a.create_time,a.create_by,a.amounts,a.review_date,a.first_amounts,a.second_amounts,a.third_amounts,
+        SELECT a.id,a.name,a.create_time,a.create_by,a.amounts,a.review_date,a.first_amounts,a.second_amounts,a.third_amounts,a.total_area,
                b.id as project_id,b.name as project_name,b.code,b.status,
                (select depart_name from sys_depart where id=b.unit) as unit,
                (select depart_name from sys_depart where id=b.bidder) as bidder,

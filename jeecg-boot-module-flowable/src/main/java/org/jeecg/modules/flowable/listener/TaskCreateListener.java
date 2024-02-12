@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.constant.enums.Vue3MessageHrefEnum;
 import org.jeecg.modules.message.websocket.WebSocket;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,11 +67,13 @@ public class TaskCreateListener implements FlowableEventListener {
     ISysAnnouncementService sysAnnouncementService;
     @Resource
     private WebSocket webSocket;
+
     @Override
     public void onEvent(FlowableEvent flowableEvent) {
         TaskEntity taskEntity = (TaskEntity) ((FlowableEntityEventImpl) flowableEvent).getEntity();
         String taskId = taskEntity.getId();
-
+        String dataId = (String) taskEntity.getVariable("dataId");
+        FlowMyBusiness business = flowMyBusinessService.getByDataId(dataId);
         List<SysUser> sysUserList = getAssigneeFromTask(taskEntity);
         if (sysUserList.size() > 0) {
             taskEntity.setAssigneeValue(sysUserList.get(0).getUsername());
@@ -89,8 +92,8 @@ public class TaskCreateListener implements FlowableEventListener {
         });
         if (CollectionUtils.isNotEmpty(userNameList)) {
             // TODO: @author azhuzhu 发送提醒消息
-            for (String username:
-                 userNameList ) {
+            for (String username :
+                    userNameList) {
                 System.out.println(taskEntity.getName() + ":" + username + " 发送提醒消息");
             }
             StringJoiner joiner = new StringJoiner(", ");
@@ -98,18 +101,24 @@ public class TaskCreateListener implements FlowableEventListener {
                 joiner.add(str);
             }
             String result = joiner.toString();
-            SysAnnouncement sysAnnouncement =new SysAnnouncement();
+            SysAnnouncement sysAnnouncement = new SysAnnouncement();
             // 2.插入用户通告阅读标记表记录
-            sysAnnouncement.setTitile("结算申请办理通知");
+            sysAnnouncement.setTitile(taskEntity.getName() + "办理通知");
             // update-end-author:liusq date:20210804 for:标题处理xss攻击的问题
             sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
             //未发布
             sysAnnouncement.setSendStatus(CommonSendStatus.PUBLISHED_STATUS_1);
-            sysAnnouncement.setMsgContent("您有一条新增结算申请待办理，请及时处理~");
+            sysAnnouncement.setMsgContent("您有一条新增" + taskEntity.getName() + "待办理，请及时处理~");
             sysAnnouncement.setSender("admin");
             sysAnnouncement.setUserIds(result);
             sysAnnouncement.setPriority(CommonConstant.PRIORITY_L);
             sysAnnouncement.setMsgType(CommonConstant.MSG_TYPE_UESR);
+            sysAnnouncement.setBusType(Vue3MessageHrefEnum.BPM_TASK.getBusType());//busType用于识别枚举，找到具体的路由地址path
+            sysAnnouncement.setBusId(taskEntity.getProcessInstanceId());
+            // 创建一个 JSON 对象
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", business.getProcessDefinitionKey());
+            sysAnnouncement.setMsgAbstract(jsonObject.toString());
             sysAnnouncement.setSendStatus(CommonConstant.HAS_SEND);
             sysAnnouncement.setSendTime(new Date());
             sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
@@ -119,7 +128,6 @@ public class TaskCreateListener implements FlowableEventListener {
             obj.put(WebsocketConst.MSG_ID, sysAnnouncement.getId());
             obj.put(WebsocketConst.MSG_TXT, sysAnnouncement.getTitile());
             webSocket.sendMessage(userNameList.toArray(new String[0]), obj.toJSONString());
-
         }
 //        setNextTask(taskEntity);
 
