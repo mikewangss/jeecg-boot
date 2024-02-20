@@ -52,6 +52,10 @@ public class ApplyInfoPage {
 	@Excel(name = "金额", width = 15)
 	@ApiModelProperty(value = "金额")
 	private java.lang.Double amounts;
+	/**结算状态*/
+	@Excel(name = "结算状态", width = 15, dicCode = "apply_status")
+	@ApiModelProperty(value = "结算状态")
+	private java.lang.String status;
 	/**初审审批金额*/
 	@Excel(name = "初审审批金额", width = 15)
 	@ApiModelProperty(value = "初审审批金额")
@@ -85,10 +89,6 @@ public class ApplyInfoPage {
 	@Excel(name = "中标单位", width = 15)
 	@ApiModelProperty(value = "中标单位")
     private java.lang.String bidder;
-	/**项目状态*/
-	@Excel(name = "项目状态", width = 15)
-	@ApiModelProperty(value = "项目状态")
-    private java.lang.String status;
 	/**合同编号*/
 	@Excel(name = "合同编号", width = 15)
 	@ApiModelProperty(value = "合同编号")

@@ -84,14 +84,33 @@ public class ApplyContract implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @ApiModelProperty(value = "开工时间")
     private java.util.Date startDate;
-	/**竣工时间*/
-	@Excel(name = "竣工时间", width = 15, format = "yyyy-MM-dd")
+	/**竣备时间*/
+	@Excel(name = "竣备时间", width = 15, format = "yyyy-MM-dd")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
-    @ApiModelProperty(value = "竣工时间")
+    @ApiModelProperty(value = "竣备时间")
     private java.util.Date endDate;
 	/**总价*/
 	@Excel(name = "总价", width = 15)
     @ApiModelProperty(value = "总价")
     private java.lang.Double totalPrice;
+    /**已发生产值*/
+    @Excel(name = "已发生产值", width = 15)
+    @ApiModelProperty(value = "已发生产值")
+    private java.lang.Double outputValue;
+    /**已付款金额*/
+    @Excel(name = "已付款金额", width = 15)
+    @ApiModelProperty(value = "已付款金额")
+    private java.lang.Double amountPaid;
+    /**预计完工时间*/
+    @Excel(name = "预计完工时间", width = 15, format = "yyyy-MM-dd")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @ApiModelProperty(value = "预计完工时间")
+    private java.util.Date estimatedDate;
+    /**项目期区*/
+    @Excel(name = "项目期区", width = 15, dicCode = "project_period")
+    @ApiModelProperty(value = "项目期区")
+    private java.lang.String period;
+
 }

@@ -23,7 +23,7 @@ export const columns: BasicColumn[] = [
    {
     title: '负责主体',
     align:"center",
-    dataIndex: 'onwer_dictText'
+    dataIndex: 'owner_dictText'
    },
    {
     title: '开始时间',
@@ -112,7 +112,7 @@ export const formSchema: FormSchema[] = [
   },
   {
     label: '负责主体',
-    field: 'onwer',
+    field: 'owner',
     component: 'JDictSelectTag',
     componentProps:{
         dictCode:""

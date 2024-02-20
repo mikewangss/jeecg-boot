@@ -63,7 +63,21 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
         }
         return Result.OK(applySupplierList);
     }
-
+    /**
+     * 分页列表查询
+     *
+     * @return
+     */
+    @ApiOperation(value = "供应商-列表查询", notes = "供应商-列表查询")
+    @GetMapping(value = "/querySupplierList")
+    public Result<List<ApplySupplier>> querySupplierList(@RequestParam(name = "type") String type) {
+        List<ApplySupplier> applySupplierList = new ArrayList<>();
+        applySupplierList = applySupplierService.list(new QueryWrapper<ApplySupplier>().lambda().eq(ApplySupplier::getType, type));
+        if (applySupplierList == null) {
+            return Result.error("未找到对应数据");
+        }
+        return Result.OK(applySupplierList);
+    }
     /**
      * 分页列表查询
      *

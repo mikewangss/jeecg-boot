@@ -60,10 +60,11 @@ public class ApplyProjectPage {
     @Dict(dictTable = "sys_depart", dicText = "depart_name", dicCode = "id")
 	@ApiModelProperty(value = "所属单位")
     private java.lang.String unit;
-	/**负责主体*/
-	@Excel(name = "负责主体", width = 15)
-	@ApiModelProperty(value = "负责主体")
-    private java.lang.String onwer;
+	/**子分公司名称（发包人）*/
+	@Excel(name = "子分公司名称（发包人）", width = 15, dictTable = "apply_supplier", dicText = "supplier_name", dicCode = "id")
+	@Dict(dictTable = "apply_supplier", dicText = "supplier_name", dicCode = "id")
+	@ApiModelProperty(value = "子分公司名称（发包人）")
+    private java.lang.String owner;
 	/**开始时间*/
 	@Excel(name = "开始时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -76,11 +77,11 @@ public class ApplyProjectPage {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	@ApiModelProperty(value = "结束时间")
     private java.util.Date endDate;
-	/**中标单位*/
-	@Excel(name = "中标单位", width = 15, dictTable = "sys_depart", dicText = "depart_name", dicCode = "id")
-    @Dict(dictTable = "sys_depart", dicText = "depart_name", dicCode = "id")
-	@ApiModelProperty(value = "中标单位")
-    private java.lang.String bidder;
+	/**施工单位名称*/
+	@Excel(name = "施工单位名称", width = 15, dictTable = "apply_supplier", dicText = "supplier_name", dicCode = "id")
+	@Dict(dictTable = "apply_supplier", dicText = "supplier_name", dicCode = "id")
+	@ApiModelProperty(value = "施工单位名称")
+	private java.lang.String bidder;
 	/**描述*/
 	@Excel(name = "描述", width = 15)
 	@ApiModelProperty(value = "描述")

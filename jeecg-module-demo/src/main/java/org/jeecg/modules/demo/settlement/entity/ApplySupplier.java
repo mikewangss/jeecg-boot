@@ -98,4 +98,8 @@ public class ApplySupplier implements Serializable {
     @Excel(name = "状态", width = 15)
     @ApiModelProperty(value = "状态")
     private java.lang.String status;
+    /**供应商类型(1：外部  0：内部)*/
+    @Excel(name = "供应商类型", width = 15)
+    @ApiModelProperty(value = "供应商类型")
+    private java.lang.String type;
 }

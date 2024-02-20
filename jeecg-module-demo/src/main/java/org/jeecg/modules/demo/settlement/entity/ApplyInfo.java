@@ -76,6 +76,10 @@ public class ApplyInfo implements Serializable {
 	@Excel(name = "户名", width = 15)
     @ApiModelProperty(value = "户名")
     private java.lang.String accountName;
+    /**结算状态*/
+    @Excel(name = "结算状态", width = 15, dicCode = "apply_status")
+    @ApiModelProperty(value = "结算状态")
+    private java.lang.String status;
     /**承包单位送审时间*/
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern="yyyy-MM-dd")
