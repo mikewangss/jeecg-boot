@@ -61,6 +61,10 @@ public class SsrfFileTypeFilter {
         FILE_TYPE_WHITE_LIST.add("7z");
         FILE_TYPE_WHITE_LIST.add("tar");
 
+        //ppt
+        FILE_TYPE_WHITE_LIST.add("ppt");
+        FILE_TYPE_WHITE_LIST.add("pptx");
+
         //设置禁止文件的头部标记
         FILE_TYPE_MAP.put("3c25402070616765206c", "jsp");
         FILE_TYPE_MAP.put("3c3f7068700a0a2f2a2a0a202a205048", "php");
