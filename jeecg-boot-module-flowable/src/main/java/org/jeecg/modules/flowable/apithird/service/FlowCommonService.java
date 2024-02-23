@@ -33,7 +33,7 @@ public class FlowCommonService {
      * @param processDefinitionKey 必填。流程定义Key，传入此值，未来启动的会是该类流程的最新一个版本
      * @param processDefinitionId 选填。流程定义Id，传入此值，未来启动的为指定版本的流程
      */
-    public boolean initActBusiness(String title,String dataId, String serviceImplName, String processDefinitionKey, String processDefinitionId){
+    public boolean initActBusiness(String title,String dataId, String serviceImplName, String processDefinitionKey){
         boolean hasBlank = StrUtil.hasBlank(title,dataId, serviceImplName, processDefinitionKey);
         if (hasBlank) throw new CustomException("流程关键参数未填完全！dataId, serviceImplName, processDefinitionKey");
         LambdaQueryWrapper<FlowMyBusiness> flowMyBusinessLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -46,15 +46,15 @@ public class FlowCommonService {
         } else {
             flowMyBusiness.setId(IdUtil.fastSimpleUUID());
         }
-        if (processDefinitionId==null){
-            // 以便更新流程
-            processDefinitionId = "";
-        }
+//        if (processDefinitionId==null){
+//            // 以便更新流程
+//            processDefinitionId = "";
+//        }
         flowMyBusiness.setTitle(title)
                 .setDataId(dataId)
                 .setServiceImplName(serviceImplName)
                 .setProcessDefinitionKey(processDefinitionKey)
-                .setProcessDefinitionId(processDefinitionId)
+//                .setProcessDefinitionId(processDefinitionId)
                 ;
         if (business!=null){
             return flowMyBusinessService.updateById(flowMyBusiness);

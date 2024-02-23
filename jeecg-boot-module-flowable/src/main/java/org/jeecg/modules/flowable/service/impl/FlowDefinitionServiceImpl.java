@@ -127,6 +127,12 @@ public class FlowDefinitionServiceImpl extends FlowServiceFactory implements IFl
      */
     @Override
     public void importFile(String name, String category, InputStream in) {
+        // 流程定义列表数据查询
+        ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery();
+        ProcessDefinition processDefinition = processDefinitionQuery.processDefinitionNameLike("%" + name + "%").latestVersion().active().singleResult();
+        if (processDefinition != null) {
+            name = name + ":v" + (processDefinition.getVersion()+1);
+        }
         Deployment deploy = repositoryService.createDeployment().addInputStream(name + BPMN_FILE_SUFFIX, in).name(name).category(category).deploy();
         ProcessDefinition definition = repositoryService.createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
         repositoryService.setProcessDefinitionCategory(definition.getId(), category);
@@ -268,7 +274,7 @@ public class FlowDefinitionServiceImpl extends FlowServiceFactory implements IFl
         // 设置流程发起人Id到流程中
         if (variables.containsKey(ProcessConstants.PROCESS_INITIATOR) && StringUtils.isNotEmpty(variables.get(ProcessConstants.PROCESS_INITIATOR).toString())) {
             System.out.println("流程已经设置发起人");
-        }else{
+        } else {
             SysUser sysUser = iFlowThirdService.getLoginUser();
             variables.put(ProcessConstants.PROCESS_INITIATOR, sysUser.getUsername());
         }
