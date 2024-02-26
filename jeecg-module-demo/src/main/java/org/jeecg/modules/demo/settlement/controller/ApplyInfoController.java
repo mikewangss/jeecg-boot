@@ -170,7 +170,7 @@ public class ApplyInfoController {
         SysDepart sysDepart = sysDepartService.getDepartById(applyProject.getUnit());
         variables.put("orgCode", sysDepart.getOrgCode());
         //流程关联结算表单
-        flowCommonService.initActBusiness("供应商结算申请流程",apply_id,"applyInfoService","diagram_Process_1704786066374","166d968d-b5b6-11ee-9d13-e02be9c77121");
+        flowCommonService.initActBusiness("供应商结算申请流程",apply_id,"applyInfoService","diagram_Process_1704786066374");
         flowDefinitionService.startProcessInstanceByKey("diagram_Process_1704786066374", variables);
         return Result.OK("添加成功！");
     }

@@ -1124,6 +1124,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                     hisFlowList.add(flowTask);
                 }
             }
+            map.put("todoUsers", business.getTodoUsers());
             map.put("flowList", hisFlowList);
 
         }
@@ -1226,9 +1227,10 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
         FlowCallBackServiceI flowCallBackService = (FlowCallBackServiceI) SpringContextUtils.getBean(serviceImplName);
         // 流程处理完后，进行回调业务层
         if (flowCallBackService != null) {
-            Object businessDataById = flowCallBackService.getBusinessDataById(business.getDataId());
+            Object businessDataById = flowCallBackService.getBusinessDataById(business.getDataId());;
             map.put("formData", businessDataById);
         }
+
         // 获取流程实例
         Task task = taskService.createTaskQuery().processInstanceId(procInsId).singleResult();
         String currentFlowNodeId = "end";
@@ -1237,7 +1239,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             // 获取流程实例的当前执行节点ID
             currentFlowNodeId = execution.getActivityId();
         }
-
+        map.put("todoUsers", business.getTodoUsers());
         // 输出当前执行节点ID
         System.out.println("当前审批流所在的节点ID：" + currentFlowNodeId);
         map.put("currentFlowNodeId", currentFlowNodeId);

@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
+import org.jeecg.modules.demo.settlement.service.IApplySupplierService;
+import org.jeecg.modules.flowable.apithird.entity.SysUser;
+import org.jeecg.modules.flowable.apithird.service.IFlowThirdService;
 import org.jeecg.modules.system.model.DepartIdModel;
 import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
@@ -69,65 +73,10 @@ public class ApplyProjectController {
     private IApplyContractService applyContractService;
     @Autowired
     private IApplyFilesService applyFilesService;
-
-    /**
-     * 通过userid查询用户的项目
-     *
-     * @param userid
-     * @return
-     */
-    //@AutoLog(value = "供应商-分页列表查询")
-    @ApiOperation(value = "供应商-我的列表查询", notes = "供应商-我的列表查询")
-    @GetMapping(value = "/myProjectList")
-    public Result<List<ApplyProject>> myProjectList(@RequestParam(name = "userid") String userid) {
-        List<ApplyProject> applyProjectArrayList = new ArrayList<>();
-        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(userid);
-        if (depIdModelList != null && depIdModelList.size() > 0) {
-            applyProjectArrayList = applyProjectService.list(new QueryWrapper<ApplyProject>().lambda().eq(ApplyProject::getBidder, depIdModelList.get(0).getKey()));
-            if (applyProjectArrayList == null) {
-                return Result.error("未找到对应数据");
-            }
-        }
-        return Result.OK(applyProjectArrayList);
-    }
-
-    /**
-     * 通过userid查询用户的合同
-     *
-     * @param userid
-     * @return
-     */
-    @GetMapping(value = "/myContractList")
-    public Result<List<ApplyContract>> myContractList(@RequestParam(name = "userid") String userid) {
-        List<ApplyContract> applyContractList = new ArrayList<>();
-        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(userid);
-        if (depIdModelList != null && depIdModelList.size() > 0) {
-            List<ApplyProject> applyProjectArrayList = applyProjectService.list(new QueryWrapper<ApplyProject>().lambda().eq(ApplyProject::getBidder, depIdModelList.get(0).getKey()));
-            if (applyProjectArrayList != null && applyProjectArrayList.size() > 0) {
-                applyContractList = applyContractService.selectByMainId(applyProjectArrayList.get(0).getId());
-            }
-        }
-        return Result.OK(applyContractList);
-    }
-
-    /**
-     * 通过userid查询用户的项目附件
-     *
-     * @param userid
-     * @return
-     */
-    @GetMapping(value = "/myApplyFileList")
-    public Result<List<ApplyFiles>> myApplyFileList(@RequestParam(name = "userid") String userid) {
-        List<ApplyFiles> applyFilesList = new ArrayList<>();
-        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(userid);
-        if (depIdModelList != null && depIdModelList.size() > 0) {
-            List<ApplyProject> applyProjectArrayList = applyProjectService.list(new QueryWrapper<ApplyProject>().lambda().eq(ApplyProject::getBidder, depIdModelList.get(0).getKey()));
-            if (applyProjectArrayList != null && applyProjectArrayList.size() > 0) {
-                applyFilesList = applyFilesService.selectByMainId(applyProjectArrayList.get(0).getId());
-            }
-        }
-        return Result.OK(applyFilesList);
-    }
+    @Autowired
+    private IFlowThirdService iFlowThirdService;
+    @Autowired
+    private IApplySupplierService applySupplierService;
 
     /**
      * 分页列表查询
@@ -150,6 +99,114 @@ public class ApplyProjectController {
         IPage<ApplyProject> pageList = applyProjectService.page(page, queryWrapper);
         return Result.OK(pageList);
     }
+
+    /**
+     * 通过userid查询用户的项目
+     *
+     * @return
+     */
+    //@AutoLog(value = "我的项目-分页列表查询")
+//    @ApiOperation(value = "我的项目-我的列表查询", notes = "我的项目-我的列表查询")
+//    @GetMapping(value = "/myProjectList")
+//    public Result<IPage<ApplyProject>> myProjectList(ApplyProject applyProject,
+//                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+//                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+//                                                    HttpServletRequest req) {
+//        SysUser loginUser = iFlowThirdService.getLoginUser();
+//        QueryWrapper<ApplyProject> queryWrapper = QueryGenerator.initQueryWrapper(applyProject, req.getParameterMap());
+//        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
+//        // 如果有多个 depIdModelList，则循环查询并合并结果
+//        for (DepartIdModel depIdModel : depIdModelList) {
+//            ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
+//                    .lambda()
+//                    .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
+//            List<ApplyProject> projectsForUser = new ArrayList<>();
+//            if (applySupplier != null) {
+//                queryWrapper.or().eq("bidder", applySupplier.getId());
+//            }
+//        }
+//        Page<ApplyProject> page = new Page<ApplyProject>(pageNo, pageSize);
+//        IPage<ApplyProject> pageList = applyProjectService.page(page, queryWrapper);
+//        return Result.OK(pageList);
+//    }
+    @ApiOperation(value = "我的项目-我的列表查询", notes = "我的项目-我的列表查询")
+    @GetMapping(value = "/myProjectList")
+    public Result<List<ApplyProject>> myProjectList(ApplyProject applyProject,
+                                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                     HttpServletRequest req) {
+        SysUser loginUser = iFlowThirdService.getLoginUser();
+        QueryWrapper<ApplyProject> queryWrapper = QueryGenerator.initQueryWrapper(applyProject, req.getParameterMap());
+        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
+        // 如果有多个 depIdModelList，则循环查询并合并结果
+        for (DepartIdModel depIdModel : depIdModelList) {
+            ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
+                    .lambda()
+                    .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
+            List<ApplyProject> projectsForUser = new ArrayList<>();
+            if (applySupplier != null) {
+                queryWrapper.or().eq("bidder", applySupplier.getId());
+            }
+        }
+        List<ApplyProject> pageList = applyProjectService.list(queryWrapper);
+        return Result.OK(pageList);
+    }
+    /**
+     * 通过userid查询用户的合同
+     *
+     * @param userid
+     * @return
+     */
+    @GetMapping(value = "/myContractList")
+    public Result<List<ApplyContract>> myContractList(@RequestParam(name = "userid") String userid) {
+        List<ApplyContract> applyContractList = new ArrayList<>();
+        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(userid);
+        // 如果有多个 depIdModelList，则循环查询并合并结果
+        for (DepartIdModel depIdModel : depIdModelList) {
+            List<ApplyProject> applyProjectArrayList = applyProjectService.list(new QueryWrapper<ApplyProject>().lambda().eq(ApplyProject::getBidder, depIdModel.getKey()));
+            // 检查是否有相关的 ApplyProject，如果有则查询对应的 ApplyFiles
+            if (applyProjectArrayList != null && !applyProjectArrayList.isEmpty()) {
+                for (ApplyProject applyProject : applyProjectArrayList) {
+                    List<ApplyContract> contracctsForProject = applyContractService.selectByMainId(applyProject.getId());
+                    applyContractList.addAll(contracctsForProject);
+                }
+            }
+        }
+        return Result.OK(applyContractList);
+    }
+
+    /**
+     * 通过userid查询用户的项目附件
+     *
+     * @param userid
+     * @return
+     */
+    @GetMapping(value = "/myApplyFileList")
+    public Result<List<ApplyFiles>> myApplyFileList(@RequestParam(name = "userid") String userid) {
+        List<ApplyFiles> applyFilesList = new ArrayList<>();
+        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(userid);
+
+        // 遍历 depIdModelList，查询每个 DepartIdModel 对应的 ApplyFiles，并合并结果
+        for (DepartIdModel depIdModel : depIdModelList) {
+            List<ApplyProject> applyProjectArrayList = applyProjectService.list(
+                    new QueryWrapper<ApplyProject>()
+                            .lambda()
+                            .eq(ApplyProject::getBidder, depIdModel.getKey())
+            );
+
+            // 检查是否有相关的 ApplyProject，如果有则查询对应的 ApplyFiles
+            if (applyProjectArrayList != null && !applyProjectArrayList.isEmpty()) {
+                for (ApplyProject applyProject : applyProjectArrayList) {
+                    List<ApplyFiles> filesForProject = applyFilesService.selectByMainId(applyProject.getId());
+                    applyFilesList.addAll(filesForProject);
+                }
+            }
+        }
+
+        // 返回结果
+        return Result.OK(applyFilesList);
+    }
+
 
     /**
      * 添加

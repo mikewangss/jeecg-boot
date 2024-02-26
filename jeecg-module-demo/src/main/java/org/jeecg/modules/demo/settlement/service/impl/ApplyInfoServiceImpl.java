@@ -115,6 +115,6 @@ public class ApplyInfoServiceImpl extends ServiceImpl<ApplyInfoMapper, ApplyInfo
 	@Override
 	public List<String> flowCandidateUsernamesOfTask(String taskNameId, Map<String, Object> values) {
 		// 案例，写死了jeecg，实际业务中通过当前节点来判断下一个节点的候选人并写回到反参中，如果为null，流程模块会根据默认设置处理
-		return Lists.newArrayList("jeecg");
+		return null;
 	}
 }

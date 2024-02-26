@@ -1,5 +1,6 @@
 package org.jeecg.modules.demo.settlement.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.demo.settlement.entity.ApplyFileMenu;
 import org.jeecg.modules.demo.settlement.entity.ApplyFiles;
+import org.jeecg.modules.demo.settlement.entity.ApplyProject;
+import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
 import org.jeecg.modules.demo.settlement.service.IApplyFilesService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,6 +25,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.demo.settlement.service.IApplyProjectService;
+import org.jeecg.modules.demo.settlement.service.IApplySupplierService;
+import org.jeecg.modules.flowable.apithird.entity.SysUser;
+import org.jeecg.modules.flowable.apithird.service.IFlowThirdService;
+import org.jeecg.modules.system.model.DepartIdModel;
+import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -52,7 +61,14 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class ApplyFilesController extends JeecgController<ApplyFiles, IApplyFilesService> {
     @Autowired
     private IApplyFilesService applyFilesService;
-
+    @Autowired
+    private ISysUserDepartService sysUserDepartService;
+    @Autowired
+    private IFlowThirdService iFlowThirdService;
+    @Autowired
+    private IApplyProjectService applyProjectService;
+    @Autowired
+    private IApplySupplierService applySupplierService;
     /**
      * 分页列表查询
      *
@@ -69,10 +85,45 @@ public class ApplyFilesController extends JeecgController<ApplyFiles, IApplyFile
                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                    HttpServletRequest req) {
-        QueryWrapper<ApplyFiles> queryWrapper = QueryGenerator.initQueryWrapper(applyFiles, req.getParameterMap());
-        Page<ApplyFiles> page = new Page<ApplyFiles>(pageNo, pageSize);
+        SysUser loginUser = iFlowThirdService.getLoginUser();
+        // 构建查询条件
+        QueryWrapper<ApplyFiles> queryWrapper = new QueryWrapper<>();
+        List<ApplyFiles> applyFilesList = new ArrayList<>();
+        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
+        // 如果有多个 depIdModelList，则循环查询并合并结果
+        for (DepartIdModel depIdModel : depIdModelList) {
+            ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
+                    .lambda()
+                    .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
+            List<ApplyProject> applyProjectArrayList = new ArrayList<>();
+            if (applySupplier != null) {
+                applyProjectArrayList = applyProjectService.list(
+                        new QueryWrapper<ApplyProject>()
+                                .lambda()
+                                .eq(ApplyProject::getBidder, applySupplier.getId())
+                );
+                // 检查是否有相关的 ApplyProject，如果有则查询对应的 ApplyFiles
+                if (applyProjectArrayList != null && !applyProjectArrayList.isEmpty()) {
+                    for (ApplyProject applyProject : applyProjectArrayList) {
+                        queryWrapper.or().eq("project_id", applyProject.getId());
+                    }
+                }
+            }
+        }
+        // 如果 queryWrapper 为空，则直接返回一个空的 Page 对象
+        if (queryWrapper.isEmptyOfWhere()) {
+            return Result.OK(new Page<>());
+        }
+        // 执行查询
+        Page<ApplyFiles> page = new Page<>(pageNo, pageSize);
         IPage<ApplyFiles> pageList = applyFilesService.page(page, queryWrapper);
+        // 返回结果
         return Result.OK(pageList);
+
+//        QueryWrapper<ApplyFiles> queryWrapper = QueryGenerator.initQueryWrapper(applyFiles, req.getParameterMap());
+//        Page<ApplyFiles> page = new Page<ApplyFiles>(pageNo, pageSize);
+//        IPage<ApplyFiles> pageList = applyFilesService.page(page, queryWrapper);
+//        return Result.OK(pageList);
     }
 
     /**
@@ -88,6 +139,7 @@ public class ApplyFilesController extends JeecgController<ApplyFiles, IApplyFile
         List<ApplyFiles> applyFilesList = applyFilesService.selectByBizId(bizId, fc);
         return Result.OK(applyFilesList);
     }
+
     /**
      * 查询文件二级分类
      *
@@ -101,6 +153,7 @@ public class ApplyFilesController extends JeecgController<ApplyFiles, IApplyFile
         List<ApplyFileMenu> applyFileMenus = applyFilesService.getSubFileMenu(parent);
         return Result.OK(applyFileMenus);
     }
+
     /**
      * 通过业务id查询
      *
@@ -114,6 +167,7 @@ public class ApplyFilesController extends JeecgController<ApplyFiles, IApplyFile
         List<ApplyFiles> applyFilesList = applyFilesService.selectByProjectId(projectId, fc);
         return Result.OK(applyFilesList);
     }
+
     /**
      * 添加
      *

@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.alibaba.fastjson.JSONObject;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.modules.demo.settlement.entity.ApplyProject;
 import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
 import org.jeecg.modules.demo.settlement.service.IApplySupplierService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -55,11 +56,19 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
     public Result<List<ApplySupplier>> mySupplierList(@RequestParam(name = "userid") String userid) {
         List<ApplySupplier> applySupplierList = new ArrayList<>();
         List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(userid);
-        if (depIdModelList != null && depIdModelList.size() > 0) {
-            applySupplierList = applySupplierService.list(new QueryWrapper<ApplySupplier>().lambda().eq(ApplySupplier::getSupplierName, depIdModelList.get(0).getTitle()));
-            if (applySupplierList == null) {
-                return Result.error("未找到对应数据");
+        for (DepartIdModel depIdModel : depIdModelList) {
+            ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
+                    .lambda()
+                    .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
+            List<ApplySupplier> applySuppliersArrayList  = applySupplierService.list(new QueryWrapper<ApplySupplier>().lambda().eq(ApplySupplier::getId,applySupplier.getId()));
+            // 如果找到了相关数据，则将其添加到结果列表中
+            if (applySuppliersArrayList != null) {
+                applySupplierList.addAll(applySuppliersArrayList);
             }
+        }
+        // 检查是否找到了相关数据
+        if (applySupplierList.isEmpty()) {
+            return Result.error("未找到对应数据");
         }
         return Result.OK(applySupplierList);
     }

@@ -93,7 +93,7 @@ public class ApplySupplierServiceImpl extends ServiceImpl<ApplySupplierMapper, A
         HashMap variables = new HashMap<>();
         variables.put("dataId", supplierId);
         variables.put(ProcessConstants.PROCESS_INITIATOR, jsonObject.getString("username"));
-        flowCommonService.initActBusiness("供应商入驻申请流程", supplierId, "applySupplierService", "Process_1706093271175", "d93d3e55-ba55-11ee-9310-e02be9c77121");
+        flowCommonService.initActBusiness("供应商入驻申请流程", supplierId, "applySupplierService", "Process_1706093271175");
         flowDefinitionService.startProcessInstanceByKey("Process_1706093271175", variables);
         return supplierId;
     }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.jeecg.common.aspect.annotation.Dict;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import java.util.Date;
@@ -58,7 +59,8 @@ public class ApplyFiles implements Serializable {
     @ApiModelProperty(value = "业务实例外键ID")
     private java.lang.String bizId;
 	/**文件类型*/
-	@Excel(name = "文件类型", width = 15)
+	@Excel(name = "文件类型", width = 15, dicCode = "apply_file_type")
+    @Dict(dicCode = "apply_file_type")
     @ApiModelProperty(value = "文件类型")
     private java.lang.String bizType;
     /**文件来源*/
@@ -75,6 +77,7 @@ public class ApplyFiles implements Serializable {
     private java.lang.String description;
 	/**分册*/
 	@Excel(name = "分册", width = 15, dicCode = "apply_fc")
+    @Dict(dicCode = "apply_fc")
     @ApiModelProperty(value = "分册")
     private java.lang.String fc;
 	/**文件*/
