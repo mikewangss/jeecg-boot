@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.demo.settlement.entity.ApplyFileMenu;
@@ -60,6 +61,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 @Slf4j
 public class ApplyFilesController extends JeecgController<ApplyFiles, IApplyFilesService> {
     @Autowired
+    ISysBaseAPI sysBaseAPI;
+    @Autowired
     private IApplyFilesService applyFilesService;
     @Autowired
     private ISysUserDepartService sysUserDepartService;
@@ -86,36 +89,38 @@ public class ApplyFilesController extends JeecgController<ApplyFiles, IApplyFile
                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                    HttpServletRequest req) {
         SysUser loginUser = iFlowThirdService.getLoginUser();
+        List<String> roles =sysBaseAPI.getRolesByUsername(loginUser.getUsername());
+        Page<ApplyFiles> page = new Page<>(pageNo, pageSize);
         // 构建查询条件
         QueryWrapper<ApplyFiles> queryWrapper = new QueryWrapper<>();
-        List<ApplyFiles> applyFilesList = new ArrayList<>();
-        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
-        // 如果有多个 depIdModelList，则循环查询并合并结果
-        for (DepartIdModel depIdModel : depIdModelList) {
-            ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
-                    .lambda()
-                    .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
-            List<ApplyProject> applyProjectArrayList = new ArrayList<>();
-            if (applySupplier != null) {
-                applyProjectArrayList = applyProjectService.list(
-                        new QueryWrapper<ApplyProject>()
-                                .lambda()
-                                .eq(ApplyProject::getBidder, applySupplier.getId())
-                );
-                // 检查是否有相关的 ApplyProject，如果有则查询对应的 ApplyFiles
-                if (applyProjectArrayList != null && !applyProjectArrayList.isEmpty()) {
-                    for (ApplyProject applyProject : applyProjectArrayList) {
-                        queryWrapper.or().eq("project_id", applyProject.getId());
+        if(!roles.contains("admin")){
+            List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
+            // 如果有多个 depIdModelList，则循环查询并合并结果
+            for (DepartIdModel depIdModel : depIdModelList) {
+                ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
+                        .lambda()
+                        .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
+                List<ApplyProject> applyProjectArrayList = new ArrayList<>();
+                if (applySupplier != null) {
+                    applyProjectArrayList = applyProjectService.list(
+                            new QueryWrapper<ApplyProject>()
+                                    .lambda()
+                                    .eq(ApplyProject::getBidder, applySupplier.getId())
+                    );
+                    // 检查是否有相关的 ApplyProject，如果有则查询对应的 ApplyFiles
+                    if (applyProjectArrayList != null && !applyProjectArrayList.isEmpty()) {
+                        for (ApplyProject applyProject : applyProjectArrayList) {
+                            queryWrapper.or().eq("project_id", applyProject.getId());
+                        }
                     }
                 }
             }
+            // 如果 queryWrapper 为空，则直接返回一个空的 Page 对象
+            if (queryWrapper.isEmptyOfWhere()) {
+                return Result.OK(page);
+            }
         }
-        // 如果 queryWrapper 为空，则直接返回一个空的 Page 对象
-        if (queryWrapper.isEmptyOfWhere()) {
-            return Result.OK(new Page<>());
-        }
-        // 执行查询
-        Page<ApplyFiles> page = new Page<>(pageNo, pageSize);
+
         IPage<ApplyFiles> pageList = applyFilesService.page(page, queryWrapper);
         // 返回结果
         return Result.OK(pageList);

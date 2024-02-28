@@ -1124,7 +1124,6 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                     hisFlowList.add(flowTask);
                 }
             }
-            map.put("todoUsers", business.getTodoUsers());
             map.put("flowList", hisFlowList);
 
         }
@@ -1137,10 +1136,24 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             map.put("formData", businessDataById);
         }
         // 获取流程实例
-        Task task = taskService.createTaskQuery().processInstanceId(procInsId).singleResult();
-        Execution execution = runtimeService.createExecutionQuery().executionId(task.getExecutionId()).singleResult();
-        // 获取流程实例的当前执行节点ID
-        String currentFlowNodeId = execution.getActivityId();
+        List<Task> runTaskList =taskService.createTaskQuery().processInstanceId(procInsId).list();
+        String currentFlowNodeId = "end";
+        if (runTaskList.size()>0) {
+            Execution execution = runtimeService.createExecutionQuery().executionId(runTaskList.get(0).getExecutionId()).singleResult();
+            // 获取流程实例的当前执行节点ID
+            currentFlowNodeId = execution.getActivityId();
+        }
+        List<String> assigneeArr = new ArrayList<>();
+        for(Task task:runTaskList){
+            assigneeArr.add(task.getAssignee());
+        }
+        // 使用 StringJoiner 将 assigneeArr 中的元素用逗号拼接成一个字符串
+        StringJoiner joiner = new StringJoiner(",");
+        for (String assignee : assigneeArr) {
+            joiner.add(assignee);
+        }
+        String assigneeArrString = joiner.toString();
+        map.put("todoUsers", assigneeArrString);
         // 输出当前执行节点ID
         System.out.println("当前审批流所在的节点ID：" + currentFlowNodeId);
         map.put("currentFlowNodeId", currentFlowNodeId);
@@ -1232,14 +1245,25 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
         }
 
         // 获取流程实例
-        Task task = taskService.createTaskQuery().processInstanceId(procInsId).singleResult();
+        List<Task> runTaskList =taskService.createTaskQuery().processInstanceId(procInsId).list();
         String currentFlowNodeId = "end";
-        if (task != null) {
-            Execution execution = runtimeService.createExecutionQuery().executionId(task.getExecutionId()).singleResult();
+        if (runTaskList.size()>0) {
+            Execution execution = runtimeService.createExecutionQuery().executionId(runTaskList.get(0).getExecutionId()).singleResult();
             // 获取流程实例的当前执行节点ID
             currentFlowNodeId = execution.getActivityId();
+
         }
-        map.put("todoUsers", business.getTodoUsers());
+        List<String> assigneeArr = new ArrayList<>();
+        for(Task task:runTaskList){
+            assigneeArr.add(task.getAssignee());
+        }
+        // 使用 StringJoiner 将 assigneeArr 中的元素用逗号拼接成一个字符串
+        StringJoiner joiner = new StringJoiner(",");
+        for (String assignee : assigneeArr) {
+            joiner.add(assignee);
+        }
+        String assigneeArrString = joiner.toString();
+        map.put("todoUsers", assigneeArrString);
         // 输出当前执行节点ID
         System.out.println("当前审批流所在的节点ID：" + currentFlowNodeId);
         map.put("currentFlowNodeId", currentFlowNodeId);

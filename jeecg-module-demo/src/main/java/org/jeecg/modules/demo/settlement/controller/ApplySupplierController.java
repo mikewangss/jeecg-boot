@@ -60,15 +60,9 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
             ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
                     .lambda()
                     .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
-            List<ApplySupplier> applySuppliersArrayList  = applySupplierService.list(new QueryWrapper<ApplySupplier>().lambda().eq(ApplySupplier::getId,applySupplier.getId()));
-            // 如果找到了相关数据，则将其添加到结果列表中
-            if (applySuppliersArrayList != null) {
-                applySupplierList.addAll(applySuppliersArrayList);
+            if (applySupplier != null) {
+                applySupplierList.add(applySupplier);
             }
-        }
-        // 检查是否找到了相关数据
-        if (applySupplierList.isEmpty()) {
-            return Result.error("未找到对应数据");
         }
         return Result.OK(applySupplierList);
     }

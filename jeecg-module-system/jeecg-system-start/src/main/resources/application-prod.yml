@@ -22,8 +22,8 @@ management:
 spring:
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 2048MB
+      max-request-size: 2048MB
   mail:
     host: smtp.163.com
     username: ??
@@ -133,9 +133,9 @@ spring:
           slow-sql-millis: 5000
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/jeecg-boot?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://8.130.72.186:3306/jeecg-boot?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
           username: root
-          password: root
+          password: Yurun123#
           driver-class-name: com.mysql.cj.jdbc.Driver
           # 多数据源配置
           #multi-datasource1:
@@ -194,18 +194,17 @@ jeecg:
     excludeUrls: /test/jeecgDemo/demo3,/test/jeecgDemo/redisDemo/**,/jmreport/bigscreen2/**,/api/getUserInfo
   #阿里云oss存储和大鱼短信秘钥配置
   oss:
-    accessKey: ??
-    secretKey: ??
-    endpoint: oss-cn-beijing.aliyuncs.com
-    bucketName: jeecgdev
-    staticDomain: https://static.jeecg.com
+    accessKey: LTAI5t5oGV7Xpj23R6rcWKzE
+    secretKey: b7SLAJY3q53LmSCC9Rk0ud32jbp45T
+    endpoint: oss-cn-wulanchabu.aliyuncs.com
+    bucketName: yurundev
   # ElasticSearch 设置
   elasticsearch:
     cluster-name: jeecg-ES
     cluster-nodes: 127.0.0.1:9200
     check-enabled: true
   # 在线预览文件服务器地址配置
-  file-view-domain: http://fileview.jeecg.com
+  file-view-domain: http://8.130.72.186:8012
   # minio文件上传
   minio:
     minio_url: http://minio.jeecg.com

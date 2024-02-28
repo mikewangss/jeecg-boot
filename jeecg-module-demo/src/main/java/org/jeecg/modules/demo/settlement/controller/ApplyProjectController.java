@@ -105,37 +105,16 @@ public class ApplyProjectController {
      *
      * @return
      */
-    //@AutoLog(value = "我的项目-分页列表查询")
-//    @ApiOperation(value = "我的项目-我的列表查询", notes = "我的项目-我的列表查询")
-//    @GetMapping(value = "/myProjectList")
-//    public Result<IPage<ApplyProject>> myProjectList(ApplyProject applyProject,
-//                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-//                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-//                                                    HttpServletRequest req) {
-//        SysUser loginUser = iFlowThirdService.getLoginUser();
-//        QueryWrapper<ApplyProject> queryWrapper = QueryGenerator.initQueryWrapper(applyProject, req.getParameterMap());
-//        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
-//        // 如果有多个 depIdModelList，则循环查询并合并结果
-//        for (DepartIdModel depIdModel : depIdModelList) {
-//            ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
-//                    .lambda()
-//                    .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
-//            List<ApplyProject> projectsForUser = new ArrayList<>();
-//            if (applySupplier != null) {
-//                queryWrapper.or().eq("bidder", applySupplier.getId());
-//            }
-//        }
-//        Page<ApplyProject> page = new Page<ApplyProject>(pageNo, pageSize);
-//        IPage<ApplyProject> pageList = applyProjectService.page(page, queryWrapper);
-//        return Result.OK(pageList);
-//    }
+    @AutoLog(value = "我的项目-分页列表查询")
     @ApiOperation(value = "我的项目-我的列表查询", notes = "我的项目-我的列表查询")
-    @GetMapping(value = "/myProjectList")
-    public Result<List<ApplyProject>> myProjectList(ApplyProject applyProject,
+    @GetMapping(value = "/myProjectPageList")
+    public Result<IPage<ApplyProject>> myProjectPageList(ApplyProject applyProject,
                                                      @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                      @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                      HttpServletRequest req) {
         SysUser loginUser = iFlowThirdService.getLoginUser();
+        Page<ApplyProject> page = new Page<ApplyProject>(pageNo, pageSize);
+        IPage<ApplyProject> pageList = null;
         QueryWrapper<ApplyProject> queryWrapper = QueryGenerator.initQueryWrapper(applyProject, req.getParameterMap());
         List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
         // 如果有多个 depIdModelList，则循环查询并合并结果
@@ -146,11 +125,35 @@ public class ApplyProjectController {
             List<ApplyProject> projectsForUser = new ArrayList<>();
             if (applySupplier != null) {
                 queryWrapper.or().eq("bidder", applySupplier.getId());
+                pageList = applyProjectService.page(page, queryWrapper);
             }
         }
-        List<ApplyProject> pageList = applyProjectService.list(queryWrapper);
         return Result.OK(pageList);
     }
+    @ApiOperation(value = "我的项目-我的列表查询", notes = "我的项目-我的列表查询")
+    @GetMapping(value = "/myProjectList")
+    public Result<List<ApplyProject>> myProjectList(ApplyProject applyProject,
+                                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                     HttpServletRequest req) {
+        SysUser loginUser = iFlowThirdService.getLoginUser();
+        List<ApplyProject> pageList = new ArrayList<>();
+        QueryWrapper<ApplyProject> queryWrapper = QueryGenerator.initQueryWrapper(applyProject, req.getParameterMap());
+        List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
+        // 如果有多个 depIdModelList，则循环查询并合并结果
+        for (DepartIdModel depIdModel : depIdModelList) {
+            ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
+                    .lambda()
+                    .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
+            if (applySupplier != null) {
+                queryWrapper.or().eq("bidder", applySupplier.getId());
+                pageList = applyProjectService.list(queryWrapper);
+            }
+        }
+
+        return Result.OK(pageList);
+    }
+
     /**
      * 通过userid查询用户的合同
      *

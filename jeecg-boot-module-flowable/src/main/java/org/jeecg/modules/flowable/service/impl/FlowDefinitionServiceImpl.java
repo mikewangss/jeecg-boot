@@ -131,7 +131,7 @@ public class FlowDefinitionServiceImpl extends FlowServiceFactory implements IFl
         ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery();
         ProcessDefinition processDefinition = processDefinitionQuery.processDefinitionNameLike("%" + name + "%").latestVersion().active().singleResult();
         if (processDefinition != null) {
-            name = name + ":v" + (processDefinition.getVersion()+1);
+            name = name + ":v" + (processDefinition.getVersion() + 1);
         }
         Deployment deploy = repositoryService.createDeployment().addInputStream(name + BPMN_FILE_SUFFIX, in).name(name).category(category).deploy();
         ProcessDefinition definition = repositoryService.createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
@@ -156,8 +156,7 @@ public class FlowDefinitionServiceImpl extends FlowServiceFactory implements IFl
     @Override
     public Result readXmlByDataId(String dataId) throws IOException {
         LambdaQueryWrapper<FlowMyBusiness> flowMyBusinessLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        flowMyBusinessLambdaQueryWrapper.eq(FlowMyBusiness::getDataId, dataId)
-        ;
+        flowMyBusinessLambdaQueryWrapper.eq(FlowMyBusiness::getDataId, dataId);
         //如果保存数据前未调用必调的FlowCommonService.initActBusiness方法，就会有问题
         FlowMyBusiness business = flowMyBusinessService.getOne(flowMyBusinessLambdaQueryWrapper);
         ProcessDefinition definition = repositoryService.createProcessDefinitionQuery().processDefinitionId(business.getProcessDefinitionId()).singleResult();
