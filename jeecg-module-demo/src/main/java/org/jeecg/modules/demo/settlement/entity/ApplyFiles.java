@@ -68,12 +68,12 @@ public class ApplyFiles implements Serializable {
     @ApiModelProperty(value = "文件来源")
     private java.lang.String source;
 	/**是否必填*/
-	@Excel(name = "是否必填", width = 15)
-    @ApiModelProperty(value = "是否必填")
+	@Excel(name = "是否通过审核", width = 15)
+    @ApiModelProperty(value = "是否通过审核")
     private java.lang.String flag;
 	/**描述*/
-	@Excel(name = "描述", width = 15)
-    @ApiModelProperty(value = "描述")
+	@Excel(name = "审批意见", width = 15)
+    @ApiModelProperty(value = "审批意见")
     private java.lang.String description;
 	/**分册*/
 	@Excel(name = "分册", width = 15, dicCode = "apply_fc")

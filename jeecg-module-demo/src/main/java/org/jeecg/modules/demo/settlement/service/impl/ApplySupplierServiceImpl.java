@@ -86,6 +86,7 @@ public class ApplySupplierServiceImpl extends ServiceImpl<ApplySupplierMapper, A
         applySupplier.setBusinessLicenseEndDate(jsonObject.getJSONArray("businessLicenseDate").get(1).toString());
         applySupplier.setBusinessLicenseFile(jsonObject.getString("businessLicenseFile"));
         applySupplier.setFirmAddress(jsonObject.getString("firmAddress"));
+        applySupplier.setStatus(CommonConstant.STATUS_1);//1供应商、2内部单位
         applySupplier.setStatus(CommonConstant.STATUS_0);//待审核
         saveOrUpdate(applySupplier);
         String supplierId = applySupplier.getId();

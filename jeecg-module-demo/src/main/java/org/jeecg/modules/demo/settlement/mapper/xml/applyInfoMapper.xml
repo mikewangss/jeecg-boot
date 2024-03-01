@@ -24,7 +24,8 @@
         SELECT a.id,a.name,a.create_time,a.create_by,a.amounts,a.review_date,a.first_amounts,a.second_amounts,a.third_amounts,a.total_area,
                b.id as project_id,b.name as project_name,b.code,b.status,
                (select depart_name from sys_depart where id=b.unit) as unit,
-               (select depart_name from sys_depart where id=b.bidder) as bidder,
+               (select supplier_name from apply_supplier where id=b.bidder) as bidder,
+               (select supplier_name from apply_supplier where id=b.owner) as owner,
                c.contract_num,c.contract_name,c.sign_date,c.total_price,c.start_date,c.end_date
         FROM  apply_info a left join apply_project b on a.project_id=b.id left join apply_contract c on a.contract_id=c.id
         WHERE

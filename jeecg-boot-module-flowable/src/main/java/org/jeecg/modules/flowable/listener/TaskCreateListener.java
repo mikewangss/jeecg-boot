@@ -3,10 +3,13 @@ package org.jeecg.modules.flowable.listener;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.aliyuncs.exceptions.ClientException;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.constant.enums.DySmsEnum;
 import org.jeecg.common.constant.enums.Vue3MessageHrefEnum;
+import org.jeecg.common.util.DySmsHelper;
 import org.jeecg.modules.message.websocket.WebSocket;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -129,6 +132,23 @@ public class TaskCreateListener implements FlowableEventListener {
             obj.put(WebsocketConst.MSG_TXT, sysAnnouncement.getTitile());
             webSocket.sendMessage(userNameList.toArray(new String[0]), obj.toJSONString());
         }
+        String execuId = taskEntity.getExecutionId();
+        Execution execution = runtimeService.createExecutionQuery().executionId(execuId).singleResult();
+        String curActId = execution.getActivityId();// 获取流程实例的当前执行节点ID
+        //流程办结通知
+        if (curActId == "end") {
+            SysUser userByUsername = iFlowThirdService.getUserByUsername(business.getProposer());
+            //消息模版
+            DySmsEnum templateCode = DySmsEnum.WORKFLOW_CODE;
+            //模版所需参数
+            JSONObject obj = new JSONObject();
+            obj.put("name", userByUsername.getRealname());
+            try {
+                DySmsHelper.sendSms(userByUsername.getPhone(), obj, templateCode);
+            } catch (ClientException e) {
+                throw new RuntimeException(e);
+            }
+        }
 //        setNextTask(taskEntity);
 
     }
@@ -181,6 +201,7 @@ public class TaskCreateListener implements FlowableEventListener {
             }
             flowMyBusinessService.updateById(business);
         }
+
 //        //遍历整个process,找到endEventId是什么，与当前taskId作对比
 //        List<FlowElement> flowElements = (List<FlowElement>) process.getFlowElements();
 //        for (FlowElement flowElement : flowElements) {

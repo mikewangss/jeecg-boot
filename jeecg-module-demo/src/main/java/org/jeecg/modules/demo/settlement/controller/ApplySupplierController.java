@@ -3,9 +3,13 @@ package org.jeecg.modules.demo.settlement.controller;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.alibaba.fastjson.JSONObject;
+import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.modules.demo.settlement.entity.ApplyInfo;
 import org.jeecg.modules.demo.settlement.entity.ApplyProject;
 import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
 import org.jeecg.modules.demo.settlement.service.IApplySupplierService;
@@ -66,6 +70,7 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
         }
         return Result.OK(applySupplierList);
     }
+
     /**
      * 分页列表查询
      *
@@ -73,14 +78,23 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
      */
     @ApiOperation(value = "供应商-列表查询", notes = "供应商-列表查询")
     @GetMapping(value = "/querySupplierList")
-    public Result<List<ApplySupplier>> querySupplierList(@RequestParam(name = "type") String type) {
+    public Result<List<ApplySupplier>> querySupplierList(@RequestParam(name = "type", required = false) String type,
+                                                         @RequestParam(name = "keyword", required = false) String keyword) {
         List<ApplySupplier> applySupplierList = new ArrayList<>();
-        applySupplierList = applySupplierService.list(new QueryWrapper<ApplySupplier>().lambda().eq(ApplySupplier::getType, type));
+        QueryWrapper<ApplySupplier> queryWrapper = new QueryWrapper<ApplySupplier>();
+        if(!StringUtil.isNullOrEmpty(type)){
+            queryWrapper.lambda().eq(ApplySupplier::getType, type);
+        }
+        if(!StringUtil.isNullOrEmpty(keyword)){
+            queryWrapper.lambda().like(ApplySupplier::getSupplierName, keyword);
+        }
+        applySupplierList = applySupplierService.list(queryWrapper);
         if (applySupplierList == null) {
             return Result.error("未找到对应数据");
         }
         return Result.OK(applySupplierList);
     }
+
     /**
      * 分页列表查询
      *
@@ -129,7 +143,7 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
     public Result<JSONObject> supplierRegister(@RequestBody JSONObject jsonObject, SysUser user, SysDepart sysDepart) {
         Result<JSONObject> result = new Result<JSONObject>();
         try {
-            String supplierId = applySupplierService.supplierRegister(jsonObject,user,sysDepart);
+            String supplierId = applySupplierService.supplierRegister(jsonObject, user, sysDepart);
             result.success("注册成功");
         } catch (Exception e) {
             result.error500("注册失败");

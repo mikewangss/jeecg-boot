@@ -16,7 +16,9 @@ import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
 import org.jeecg.modules.demo.settlement.service.IApplySupplierService;
 import org.jeecg.modules.flowable.apithird.entity.SysUser;
 import org.jeecg.modules.flowable.apithird.service.IFlowThirdService;
+import org.jeecg.modules.system.entity.SysPermission;
 import org.jeecg.modules.system.model.DepartIdModel;
+import org.jeecg.modules.system.service.ISysPermissionService;
 import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
@@ -77,6 +79,8 @@ public class ApplyProjectController {
     private IFlowThirdService iFlowThirdService;
     @Autowired
     private IApplySupplierService applySupplierService;
+    @Autowired
+    private ISysPermissionService iSysPermissionService;
 
     /**
      * 分页列表查询
@@ -94,9 +98,30 @@ public class ApplyProjectController {
                                                      @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                      @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                      HttpServletRequest req) {
-        QueryWrapper<ApplyProject> queryWrapper = QueryGenerator.initQueryWrapper(applyProject, req.getParameterMap());
+        SysUser loginUser = iFlowThirdService.getLoginUser();
         Page<ApplyProject> page = new Page<ApplyProject>(pageNo, pageSize);
-        IPage<ApplyProject> pageList = applyProjectService.page(page, queryWrapper);
+        boolean flag = false;
+        IPage<ApplyProject> pageList = null;
+        QueryWrapper<ApplyProject> queryWrapper = QueryGenerator.initQueryWrapper(applyProject, req.getParameterMap());
+        List<SysPermission> metaList = iSysPermissionService.queryByUser(loginUser.getUsername()).stream().filter(sysPermission -> "查看所有项目".equals(sysPermission.getName())).collect(Collectors.toList());;
+
+        if (metaList.size()==0) {
+            List<DepartIdModel> depIdModelList = sysUserDepartService.queryDepartIdsOfUser(loginUser.getId());
+            // 如果有多个 depIdModelList，则循环查询并合并结果
+            for (DepartIdModel depIdModel : depIdModelList) {
+                ApplySupplier applySupplier = applySupplierService.getOne(new QueryWrapper<ApplySupplier>()
+                        .lambda()
+                        .eq(ApplySupplier::getSupplierName, depIdModel.getTitle()));
+                List<ApplyProject> projectsForUser = new ArrayList<>();
+                if (applySupplier != null) {
+                    queryWrapper.or().eq("bidder", applySupplier.getId());
+                    pageList = applyProjectService.page(page, queryWrapper);
+                }else{
+                    return Result.OK(pageList);
+                }
+            }
+        }
+        pageList = applyProjectService.page(page, queryWrapper);
         return Result.OK(pageList);
     }
 
@@ -109,9 +134,9 @@ public class ApplyProjectController {
     @ApiOperation(value = "我的项目-我的列表查询", notes = "我的项目-我的列表查询")
     @GetMapping(value = "/myProjectPageList")
     public Result<IPage<ApplyProject>> myProjectPageList(ApplyProject applyProject,
-                                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                     HttpServletRequest req) {
+                                                         @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                         @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                         HttpServletRequest req) {
         SysUser loginUser = iFlowThirdService.getLoginUser();
         Page<ApplyProject> page = new Page<ApplyProject>(pageNo, pageSize);
         IPage<ApplyProject> pageList = null;
@@ -130,12 +155,13 @@ public class ApplyProjectController {
         }
         return Result.OK(pageList);
     }
+
     @ApiOperation(value = "我的项目-我的列表查询", notes = "我的项目-我的列表查询")
     @GetMapping(value = "/myProjectList")
     public Result<List<ApplyProject>> myProjectList(ApplyProject applyProject,
-                                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                     HttpServletRequest req) {
+                                                    @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                    @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                    HttpServletRequest req) {
         SysUser loginUser = iFlowThirdService.getLoginUser();
         List<ApplyProject> pageList = new ArrayList<>();
         QueryWrapper<ApplyProject> queryWrapper = QueryGenerator.initQueryWrapper(applyProject, req.getParameterMap());

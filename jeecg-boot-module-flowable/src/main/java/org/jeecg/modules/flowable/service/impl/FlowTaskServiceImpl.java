@@ -1205,18 +1205,18 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                     List<HistoricIdentityLink> linksForTask = historyService.getHistoricIdentityLinksForTask(histIns.getTaskId());
                     StringBuilder stringBuilder = new StringBuilder();
                     for (HistoricIdentityLink identityLink : linksForTask) {
-                        if (IdentityLinkType.CANDIDATE.equals(identityLink.getType())) {
-                            if (StringUtils.isNotBlank(identityLink.getUserId())) {
-                                SysUser sysUser = iFlowThirdService.getUserByUsername(identityLink.getUserId());
-                                stringBuilder.append(sysUser.getRealname()).append(",");
-                            }
-                            /*已经全部设置到 CANDIDATE 了，不拿组了*/
-                            /*if (StringUtils.isNotBlank(identityLink.getGroupId())) {
-                                List<SysRole> allRole = iFlowThirdService.getAllRole();
-                                SysRole sysRole = allRole.stream().filter(o -> StringUtils.equals(identityLink.getGroupId(), o.getId())).findAny().orElse(new SysRole());
-                                stringBuilder.append(sysRole.getRoleName()).append(",");
-                            }*/
-                        }
+//                        if (IdentityLinkType.CANDIDATE.equals(identityLink.getType())) {
+//                            if (StringUtils.isNotBlank(identityLink.getUserId())) {
+//                                SysUser sysUser = iFlowThirdService.getUserByUsername(identityLink.getUserId());
+//                                stringBuilder.append(sysUser.getRealname()).append(",");
+//                            }
+//                            /*已经全部设置到 CANDIDATE 了，不拿组了*/
+//                            /*if (StringUtils.isNotBlank(identityLink.getGroupId())) {
+//                                List<SysRole> allRole = iFlowThirdService.getAllRole();
+//                                SysRole sysRole = allRole.stream().filter(o -> StringUtils.equals(identityLink.getGroupId(), o.getId())).findAny().orElse(new SysRole());
+//                                stringBuilder.append(sysRole.getRoleName()).append(",");
+//                            }*/
+//                        }
                     }
                     if (StringUtils.isNotBlank(stringBuilder)) {
                         flowTask.setCandidate(stringBuilder.substring(0, stringBuilder.length() - 1));

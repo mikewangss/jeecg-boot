@@ -10,6 +10,8 @@ public enum DySmsEnum {
 
     /**登录短信模板编码*/
 	LOGIN_TEMPLATE_CODE("SMS_464225498","YRGROUP","code"),
+	/**流程办理进度通知*/
+	WORKFLOW_CODE("SMS_465410611","YRGROUP","name"),
     /**忘记密码短信模板编码*/
 	FORGET_PASSWORD_TEMPLATE_CODE("SMS_464225498","YRGROUP","code"),
 	/**注册账号短信模板编码*/

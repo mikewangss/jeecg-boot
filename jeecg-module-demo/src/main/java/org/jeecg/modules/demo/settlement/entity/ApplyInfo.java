@@ -121,7 +121,7 @@ public class ApplyInfo implements Serializable {
 	/**附件*/
 	@Excel(name = "附件", width = 15)
     @ApiModelProperty(value = "附件")
-    private java.lang.String file;
+    private java.lang.String finalFile;
 
     /**供应商外键*/
     @ApiModelProperty(value = "供应商外键")
