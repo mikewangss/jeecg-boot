@@ -108,7 +108,7 @@ public class ApplyInfoController {
         //编程方式，给queryWrapper装载数据权限规则,,request.MENU_DATA_AUTHOR_RULES
         QueryGenerator.installAuthMplus(queryWrapper, ApplyInfo.class);
         Page<ApplyInfo> page = new Page<ApplyInfo>(pageNo, pageSize);
-        queryWrapper.eq("create_by", username);
+        queryWrapper.eq("create_by", username).orderByDesc("create_time");
         IPage<ApplyInfo> pageList = applyInfoService.page(page, queryWrapper);
         return Result.OK(pageList);
 //		QueryWrapper<ApplyInfo> queryWrapper = QueryGenerator.initQueryWrapper(applyInfo, req.getParameterMap());

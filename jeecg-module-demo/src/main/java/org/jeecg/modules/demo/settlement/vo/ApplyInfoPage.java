@@ -89,6 +89,10 @@ public class ApplyInfoPage {
 	@Excel(name = "中标单位", width = 15)
 	@ApiModelProperty(value = "中标单位")
     private java.lang.String bidder;
+	/**子分公司名称（发包人）*/
+	@Excel(name = "子分公司名称（发包人）", width = 15)
+	@ApiModelProperty(value = "子分公司名称（发包人）")
+	private java.lang.String owner;
 	/**合同编号*/
 	@Excel(name = "合同编号", width = 15)
 	@ApiModelProperty(value = "合同编号")

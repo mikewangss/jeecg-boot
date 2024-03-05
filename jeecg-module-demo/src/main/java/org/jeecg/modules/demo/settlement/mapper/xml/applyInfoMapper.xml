@@ -12,6 +12,7 @@
         <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
         <result column="unit" property="unit" jdbcType="VARCHAR"/>
         <result column="bidder" property="bidder" jdbcType="TIMESTAMP"/>
+        <result column="owner" property="owner" jdbcType="TIMESTAMP"/>
         <result column="status" property="status" jdbcType="VARCHAR"/>
         <result column="contract_num" property="contractNum" jdbcType="VARCHAR"/>
         <result column="contract_name" property="contractName" jdbcType="VARCHAR"/>
