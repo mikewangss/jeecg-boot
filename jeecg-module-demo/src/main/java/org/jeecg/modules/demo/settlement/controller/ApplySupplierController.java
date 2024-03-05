@@ -6,19 +6,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSONObject;
 import io.netty.util.internal.StringUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.modules.demo.settlement.entity.ApplyInfo;
-import org.jeecg.modules.demo.settlement.entity.ApplyProject;
 import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
+import org.jeecg.modules.demo.settlement.service.IApplySupplierFormService;
 import org.jeecg.modules.demo.settlement.service.IApplySupplierService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.modules.flowable.apithird.service.FlowCommonService;
-import org.jeecg.modules.flowable.service.IFlowDefinitionService;
 import org.jeecg.modules.system.entity.SysDepart;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.DepartIdModel;
@@ -49,7 +46,8 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
     private ISysUserDepartService sysUserDepartService;
     @Autowired
     FlowCommonService flowCommonService;
-
+    @Autowired
+    IApplySupplierFormService applySupplierFormService;
     /**
      * @param userid
      * @return
@@ -143,7 +141,7 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
     public Result<JSONObject> supplierRegister(@RequestBody JSONObject jsonObject, SysUser user, SysDepart sysDepart) {
         Result<JSONObject> result = new Result<JSONObject>();
         try {
-            String supplierId = applySupplierService.supplierRegister(jsonObject, user, sysDepart);
+            String supplierId = applySupplierFormService.supplierRegister(jsonObject, user, sysDepart);
             result.success("注册成功");
         } catch (Exception e) {
             result.error500("注册失败");
