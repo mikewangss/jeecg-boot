@@ -59,7 +59,7 @@ public class ApplySupplierForm implements Serializable {
     /**供应商名称*/
     @Excel(name = "统一社会信用代码", width = 15)
     @ApiModelProperty(value = "统一社会信用代码")
-    private String UnifiedSocialCreditCode;
+    private String unifiedSocialCreditCode;
 	/**法人姓名*/
 	@Excel(name = "法人姓名", width = 15)
     @ApiModelProperty(value = "法人姓名")

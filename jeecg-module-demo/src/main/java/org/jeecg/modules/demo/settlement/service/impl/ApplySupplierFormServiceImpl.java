@@ -25,11 +25,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.jeecg.common.util.PasswordUtil;
+
 import java.util.Date;
+
 import org.jeecg.common.util.oConvertUtils;
 
 /**
@@ -122,12 +126,19 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
         business.getValues();//前端传进来的参数
         String actStatus = business.getActStatus();//流程状态 ActStatus.java
         SysUser sysUser = sysUserService.getUserByName(business.getProposer());
+        List<SysDepart> sysDepartList = sysDepartService.queryDepartsByUsername(sysUser.getUsername());
         ApplySupplierForm applySupplierForm = getById(business.getDataId());
         if (StringUtils.equals("审批通过", actStatus)) {
             ApplySupplier applySupplier = new ApplySupplier();
-            BeanUtils.copyProperties(applySupplier, applySupplierForm);
+            BeanUtils.copyProperties(applySupplierForm, applySupplier);
             applySupplier.setStatus(CommonConstant.STATUS_1);
             applySupplierService.saveOrUpdate(applySupplier);
+            sysUser.setStatus(CommonConstant.USER_UNFREEZE);
+            if (sysDepartList.size() > 0) {
+                SysDepart sysDepart = sysDepartList.get(0);
+                sysDepart.setStatus(CommonConstant.STATUS_1);
+            }
+
         }
     }
 

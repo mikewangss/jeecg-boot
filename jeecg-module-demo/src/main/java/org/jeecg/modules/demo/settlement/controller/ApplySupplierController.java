@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.netty.util.internal.StringUtil;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.modules.demo.settlement.entity.ApplyInfo;
 import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
 import org.jeecg.modules.demo.settlement.service.IApplySupplierFormService;
 import org.jeecg.modules.demo.settlement.service.IApplySupplierService;
@@ -48,6 +49,7 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
     FlowCommonService flowCommonService;
     @Autowired
     IApplySupplierFormService applySupplierFormService;
+
     /**
      * @param userid
      * @return
@@ -80,10 +82,10 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
                                                          @RequestParam(name = "keyword", required = false) String keyword) {
         List<ApplySupplier> applySupplierList = new ArrayList<>();
         QueryWrapper<ApplySupplier> queryWrapper = new QueryWrapper<ApplySupplier>();
-        if(!StringUtil.isNullOrEmpty(type)){
+        if (!StringUtil.isNullOrEmpty(type)) {
             queryWrapper.lambda().eq(ApplySupplier::getType, type);
         }
-        if(!StringUtil.isNullOrEmpty(keyword)){
+        if (!StringUtil.isNullOrEmpty(keyword)) {
             queryWrapper.lambda().like(ApplySupplier::getSupplierName, keyword);
         }
         applySupplierList = applySupplierService.list(queryWrapper);
@@ -141,6 +143,13 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
     public Result<JSONObject> supplierRegister(@RequestBody JSONObject jsonObject, SysUser user, SysDepart sysDepart) {
         Result<JSONObject> result = new Result<JSONObject>();
         try {
+            QueryWrapper<ApplySupplier> queryWrapper = new QueryWrapper<ApplySupplier>();
+            queryWrapper.or().eq("supplier_name", jsonObject.getString("supplierName")).or().
+                    eq("unified_social_credit_code", jsonObject.getString("unifiedSocialCreditCode"));
+            ApplySupplier applySupplier = applySupplierService.getOne(queryWrapper);
+            if (applySupplier != null) {
+                return  result.error500("注册失败，供应商已存在~");
+            }
             String supplierId = applySupplierFormService.supplierRegister(jsonObject, user, sysDepart);
             result.success("注册成功");
         } catch (Exception e) {

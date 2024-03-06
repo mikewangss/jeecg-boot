@@ -255,11 +255,11 @@ public class ApplyProjectController {
         if (applyProjectPage.getApplyContractList().size() > 0) {
             applyContractList = applyProjectPage.getApplyContractList();
         }
-        if (applyProjectPage.getApplyFilesList().size() > 0) {
-            applyFilesList = applyProjectPage.getApplyFilesList();
-        } else {
-            applyFilesList = readJsonFile("classpath:org/jeecg/modules/demo/mock/json/apply_file.json", ApplyFiles.class);
-        }
+//        if (applyProjectPage.getApplyFilesList().size() > 0) {
+//            applyFilesList = applyProjectPage.getApplyFilesList();
+//        } else {
+//            applyFilesList = readJsonFile("classpath:org/jeecg/modules/demo/mock/json/apply_file.json", ApplyFiles.class);
+//        }
         applyProjectService.saveMain(applyProject, applyContractList, applyFilesList);
         return Result.OK("添加成功！");
     }
