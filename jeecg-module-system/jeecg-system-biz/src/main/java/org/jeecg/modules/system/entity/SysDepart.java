@@ -63,6 +63,9 @@ public class SysDepart implements Serializable {
 	/**地址*/
 	@Excel(name="地址",width=15)
 	private String address;
+	/**区域*/
+	@Excel(name="区域",width=15)
+	private String region;
 	/**备注*/
 	@Excel(name="备注",width=15)
 	private String memo;
