@@ -5,10 +5,13 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
 import io.netty.util.internal.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jeecg.common.aspect.annotation.PermissionData;
+import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.modules.demo.settlement.entity.*;
 import org.jeecg.modules.demo.settlement.service.IApplyFilesService;
@@ -52,9 +55,6 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 
-import static org.jeecg.modules.demo.settlement.util.GetJsonData.readJsonFile;
-
-
 /**
  * @Description: 结算申请
  * @Author: jeecg-boot
@@ -86,6 +86,7 @@ public class ApplyInfoController {
     private ISysDepartService sysDepartService;
     @Autowired
     private IFlowThirdService iFlowThirdService;
+
     /**
      * 分页列表查询
      *
@@ -116,6 +117,7 @@ public class ApplyInfoController {
 //		IPage<ApplyInfo> pageList = applyInfoService.page(page, queryWrapper);
 //		return Result.OK(pageList);
     }
+
     /**
      * 结算材料完整性验证
      *
@@ -133,8 +135,8 @@ public class ApplyInfoController {
         ApplyProject applyProject = applyProjectService.getById(applyInfo.getProjectId());
         for (ApplyFiles applyFiles :
                 applyFilesList) {
-            boolean f =StringUtil.isNullOrEmpty(applyFiles.getFile());
-            if (StringUtils.equalsIgnoreCase(applyFiles.getFlag(),"1")  && f) {
+            boolean f = StringUtil.isNullOrEmpty(applyFiles.getFile());
+            if (StringUtils.equalsIgnoreCase(applyFiles.getFlag(), "1") && f) {
                 errorMsg += applyFiles.getFileName() + "/n";
             }
         }
@@ -144,6 +146,7 @@ public class ApplyInfoController {
 
         return Result.OK("ok！");
     }
+
     /**
      * 添加
      *
@@ -157,7 +160,7 @@ public class ApplyInfoController {
     public Result<String> add(@RequestBody ApplyInfoPage applyInfoPage) throws IOException {
         ApplyInfo applyInfo = new ApplyInfo();
         BeanUtils.copyProperties(applyInfoPage, applyInfo);
-        String apply_id = applyInfoService.saveMain(applyInfo,applyInfoPage.getRequestFileList(),applyInfoPage.getChangeFileList());
+        String apply_id = applyInfoService.saveMain(applyInfo, applyInfoPage.getRequestFileList(), applyInfoPage.getChangeFileList());
 
         LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         String username = sysUser.getUsername();
@@ -168,10 +171,20 @@ public class ApplyInfoController {
         //这个orgCode能否前段传过来？
         ApplyProject applyProject = applyProjectService.getById(applyInfoPage.getProjectId());
         SysDepart sysDepart = sysDepartService.getDepartById(applyProject.getUnit());
+        JSONObject jsonObject = sysDepartService.queryAllParentIdByDepartId(applyProject.getUnit());
+        //获取所在项目的二级部门
+        String jsonkey = jsonObject.getJSONObject(applyProject.getUnit()).getJSONArray("parentIds").get(1).toString();
+        SysDepart sysParentDepart = (SysDepart) jsonObject.getJSONObject(applyProject.getUnit()).getJSONObject("parentMap").get(jsonkey);
         variables.put("orgCode", sysDepart.getOrgCode());
         //流程关联结算表单
-        flowCommonService.initActBusiness("供应商结算申请流程",apply_id,"applyInfoService","diagram_Process_1704786066374");
-        flowDefinitionService.startProcessInstanceByKey("diagram_Process_1704786066374", variables);
+        String proDefKey = "";
+        if (StringUtils.equals(sysParentDepart.getDepartName(), "建设集团")) {
+            proDefKey = CommonConstant.APPLY_KEY_JS;
+        } else {
+            proDefKey = CommonConstant.APPLY_KEY_DC;
+        }
+        flowCommonService.initActBusiness("供应商结算申请流程", apply_id, "applyInfoService", proDefKey);
+        flowDefinitionService.startProcessInstanceByKey(proDefKey, variables);
         return Result.OK("添加成功！");
     }
 
