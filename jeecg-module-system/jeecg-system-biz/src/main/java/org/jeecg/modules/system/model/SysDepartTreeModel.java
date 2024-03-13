@@ -58,7 +58,7 @@ public class SysDepartTreeModel implements Serializable{
     private String fax;
 
     private String address;
-
+    private String region;
     private String memo;
 
     private String status;
@@ -104,6 +104,7 @@ public class SysDepartTreeModel implements Serializable{
         this.mobile = sysDepart.getMobile();
         this.fax = sysDepart.getFax();
         this.address = sysDepart.getAddress();
+        this.region = sysDepart.getRegion();
         this.memo = sysDepart.getMemo();
         this.status = sysDepart.getStatus();
         this.delFlag = sysDepart.getDelFlag();
@@ -236,7 +237,13 @@ public class SysDepartTreeModel implements Serializable{
     public void setFax(String fax) {
         this.fax = fax;
     }
+    public String getRegion() {
+        return region;
+    }
 
+    public void setRegion(String region) {
+        this.region = region;
+    }
     public String getAddress() {
         return address;
     }
@@ -376,6 +383,7 @@ public class SysDepartTreeModel implements Serializable{
                 Objects.equals(mobile, model.mobile) &&
                 Objects.equals(fax, model.fax) &&
                 Objects.equals(address, model.address) &&
+                Objects.equals(region, model.region) &&
                 Objects.equals(memo, model.memo) &&
                 Objects.equals(status, model.status) &&
                 Objects.equals(delFlag, model.delFlag) &&
@@ -395,7 +403,7 @@ public class SysDepartTreeModel implements Serializable{
     public int hashCode() {
 
         return Objects.hash(id, parentId, departName, departNameEn, departNameAbbr,
-        		departOrder, description, orgCategory, orgType, orgCode, mobile, fax, address, 
+        		departOrder, description, orgCategory, orgType, orgCode, mobile, fax, address, region,
         		memo, status, delFlag, qywxIdentifier, createBy, createTime, updateBy, updateTime,
         		children,directorUserIds);
     }

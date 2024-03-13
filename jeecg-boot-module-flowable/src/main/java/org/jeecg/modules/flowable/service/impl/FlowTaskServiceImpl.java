@@ -90,11 +90,11 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Result complete(FlowTaskVo taskVo) {
-        Task task = taskService.createTaskQuery().processInstanceId(taskVo.getInstanceId()).singleResult();
+        SysUser loginUser = iFlowThirdService.getLoginUser();
+        Task task = taskService.createTaskQuery().processInstanceId(taskVo.getInstanceId()).taskAssignee(loginUser.getUsername()).singleResult();
         if (Objects.isNull(task)) {
             return Result.error("任务不存在");
         }
-        SysUser loginUser = iFlowThirdService.getLoginUser();
         if (DelegationState.PENDING.equals(task.getDelegationState())) {
             taskService.addComment(taskVo.getTaskId(), taskVo.getInstanceId(), FlowComment.DELEGATE.getType(), taskVo.getComment());
             //taskService.resolveTask(taskVo.getTaskId(), taskVo.getValues());

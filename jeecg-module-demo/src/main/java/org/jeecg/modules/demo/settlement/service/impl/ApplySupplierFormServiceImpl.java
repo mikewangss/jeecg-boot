@@ -17,6 +17,7 @@ import org.jeecg.modules.flowable.common.constant.ProcessConstants;
 import org.jeecg.modules.flowable.service.IFlowDefinitionService;
 import org.jeecg.modules.system.entity.SysDepart;
 import org.jeecg.modules.system.entity.SysUser;
+import org.jeecg.modules.system.model.SysDepartTreeModel;
 import org.jeecg.modules.system.service.ISysDepartService;
 import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.jeecg.modules.system.service.ISysUserService;
@@ -26,13 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.jeecg.common.util.PasswordUtil;
-
-import java.util.Date;
 
 import org.jeecg.common.util.oConvertUtils;
 
@@ -57,6 +54,23 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
     @Autowired
     private ISysUserDepartService sysUserDepartService;
 
+    public List<String> getTaskAssaginlist(String region, String orgCode) {
+        List<String> assaginlist = new ArrayList<>();
+        //1.根据region,orgCode获取部门
+        List<SysDepartTreeModel> sysDepartTreeModels = sysDepartService.queryTreeByRegion(region, orgCode);
+        for (SysDepartTreeModel sysDepartTreeModel : sysDepartTreeModels) {
+            List<SysUser> sysUserList = new ArrayList<>();
+            sysUserList = sysUserDepartService.queryUserByDepCode(sysDepartTreeModel.getOrgCode(), "");
+            for (SysUser sysUser : sysUserList) {
+                assaginlist.add(sysUser.getUsername());//3.获取部门所有用户
+            }
+        }
+        if(assaginlist.size()==0){
+            assaginlist.add("admin");
+        }
+        return assaginlist;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String supplierRegister(JSONObject jsonObject, SysUser user, SysDepart sysDepart) {
@@ -75,7 +89,10 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
         applySupplierForm.setEmail(jsonObject.getString("email"));
         applySupplierForm.setPhone(jsonObject.getString("phone"));
         applySupplierForm.setProjectName(jsonObject.getString("projectName"));
-        applySupplierForm.setRegion(jsonObject.getString("region"));
+        String region = jsonObject.getString("region");
+        String depart = jsonObject.getString("depart");
+        applySupplierForm.setRegion(region);
+        applySupplierForm.setDepart(depart);
         applySupplierForm.setProjectManger(jsonObject.getString("projectManger"));
         applySupplierForm.setProjectMangerPhone(jsonObject.getString("projectMangerPhone"));
         saveOrUpdate(applySupplierForm);
@@ -108,10 +125,9 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
         //5、流程供应商入驻申请流程
         HashMap variables = new HashMap<>();
         variables.put("dataId", supplierId);
-        SysDepart sysDepart_1 = sysDepartService.getDepartById(jsonObject.getString("region"));//项目归属部门
-        if (sysDepart_1 != null) {
-            variables.put("orgCode", sysDepart_1.getOrgCode());
-        }
+
+        List<String> assaginlist = getTaskAssaginlist(region, depart);
+        variables.put("assigneeList", assaginlist);
         variables.put(ProcessConstants.PROCESS_INITIATOR, jsonObject.getString("username"));
         flowCommonService.initActBusiness("供应商入驻申请流程", supplierId, "applySupplierFormService", "Process_1706093271175");
         flowDefinitionService.startProcessInstanceByKey("Process_1706093271175", variables);
@@ -121,7 +137,7 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void afterFlowHandle(FlowMyBusiness business) {
-        //流程操作后做些什么
+        //流程操作后做些什么，如果会签，逻辑有问题，应该等待会签完毕
         business.getTaskNameId();//接下来审批的节点
         business.getValues();//前端传进来的参数
         String actStatus = business.getActStatus();//流程状态 ActStatus.java
@@ -133,11 +149,13 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
             BeanUtils.copyProperties(applySupplierForm, applySupplier);
             applySupplier.setStatus(CommonConstant.STATUS_1);
             applySupplierService.saveOrUpdate(applySupplier);
-            sysUser.setStatus(CommonConstant.USER_UNFREEZE);
             if (sysDepartList.size() > 0) {
                 SysDepart sysDepart = sysDepartList.get(0);
                 sysDepart.setStatus(CommonConstant.STATUS_1);
+                sysDepartService.saveOrUpdate(sysDepart);
             }
+            sysUserService.updateStatus(sysUser.getId(),CommonConstant.USER_UNFREEZE.toString());
+
 
         }
     }

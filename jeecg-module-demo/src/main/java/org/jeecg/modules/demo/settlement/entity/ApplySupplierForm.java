@@ -98,6 +98,10 @@ public class ApplySupplierForm implements Serializable {
     @Excel(name = "所属区域", width = 15)
     @ApiModelProperty(value = "所属区域")
     private String region;
+    /**合作单位*/
+    @Excel(name = "合作单位", width = 15)
+    @ApiModelProperty(value = "合作单位")
+    private String depart;
     /**项目经理*/
     @Excel(name = "项目经理", width = 15)
     @ApiModelProperty(value = "项目经理")

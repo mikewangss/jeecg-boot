@@ -10,7 +10,12 @@ import org.jeecg.modules.demo.settlement.mapper.ApplyInfoMapper;
 import org.jeecg.modules.demo.settlement.service.IApplyInfoService;
 import org.jeecg.modules.demo.settlement.vo.ApplyInfoPage;
 import org.jeecg.modules.flowable.apithird.business.entity.FlowMyBusiness;
+import org.jeecg.modules.flowable.apithird.business.service.IFlowMyBusinessService;
+import org.jeecg.modules.flowable.apithird.business.service.impl.FlowMyBusinessServiceImpl;
 import org.jeecg.modules.flowable.apithird.service.FlowCallBackServiceI;
+import org.jeecg.modules.flowable.domain.vo.FlowTaskVo;
+import org.jeecg.modules.flowable.service.IFlowTaskService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +37,12 @@ public class ApplyInfoServiceImpl extends ServiceImpl<ApplyInfoMapper, ApplyInfo
 
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
-
+    @Autowired
+    private IFlowTaskService flowTaskService;
     @Autowired
     private ApplyFilesMapper applyFilesMapper;
-
+    @Autowired
+    FlowMyBusinessServiceImpl flowMyBusinessService;
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String saveMain(ApplyInfo applyInfo, List<ApplyFiles> requstFileList, List<ApplyFiles> changeFileList) {
@@ -80,7 +87,16 @@ public class ApplyInfoServiceImpl extends ServiceImpl<ApplyInfoMapper, ApplyInfo
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delMain(String id) {
-        applyInfoMapper.deleteById(id);
+        ApplyInfoPage applyInfoPage = applyInfoMapper.queryByMainId(id);
+        ApplyInfo applyinfo =new ApplyInfo();
+        BeanUtils.copyProperties(applyInfoPage, applyinfo);
+        applyinfo.setDelFlag(CommonConstant.DEL_FLAG_1);
+        applyInfoMapper.updateById(applyinfo);
+        FlowTaskVo flowTaskVo=new FlowTaskVo();
+        FlowMyBusiness business = flowMyBusinessService.getByDataId(id);
+        flowTaskVo.setInstanceId(business.getProcessInstanceId());
+        flowTaskVo.setComment("用户取消申请");
+        flowTaskService.stopProcess(flowTaskVo);
     }
 
     @Override

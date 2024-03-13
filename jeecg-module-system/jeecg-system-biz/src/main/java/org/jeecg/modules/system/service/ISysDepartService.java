@@ -128,6 +128,7 @@ public interface ISysDepartService extends IService<SysDepart>{
      * @return
      */
     List<SysDepartTreeModel> queryTreeByKeyWord(String keyWord);
+    List<SysDepartTreeModel> queryTreeByRegion(String region,String orgCode);
     /**
      * 获取我的部门下级所有部门
      * @param parentId 父id

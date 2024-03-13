@@ -56,6 +56,9 @@ public class ApplyInfoPage {
 	@Excel(name = "结算状态", width = 15, dicCode = "apply_status")
 	@ApiModelProperty(value = "结算状态")
 	private java.lang.String status;
+	/**删除状态*/
+	@ApiModelProperty(value = "删除状态")
+	private java.lang.Integer delFlag;
 	/**初审审批金额*/
 	@Excel(name = "初审审批金额", width = 15)
 	@ApiModelProperty(value = "初审审批金额")
