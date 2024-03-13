@@ -2,14 +2,19 @@ package org.jeecg.modules.flowable.listener;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyuncs.exceptions.ClientException;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.dto.message.MessageDTO;
 import org.jeecg.common.constant.enums.DySmsEnum;
 import org.jeecg.common.constant.enums.Vue3MessageHrefEnum;
+import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.util.DySmsHelper;
+import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.message.entity.MsgParams;
 import org.jeecg.modules.message.websocket.WebSocket;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +75,8 @@ public class TaskCreateListener implements FlowableEventListener {
     ISysAnnouncementService sysAnnouncementService;
     @Resource
     private WebSocket webSocket;
+    @Autowired
+    private ISysBaseAPI sysBaseApi;
 
     @Override
     public void onEvent(FlowableEvent flowableEvent) {
@@ -85,23 +92,35 @@ public class TaskCreateListener implements FlowableEventListener {
         if (CollectionUtils.isEmpty(idList)) {
             return;
         }
-        List<String> userNameList = new ArrayList<>();
+        List<SysUser> userNameList = new ArrayList<>();
         // 获取接收人，此处从Identity获取，实际情况会更复杂
         idList.forEach(identityLink -> {
             if (StringUtils.isNotBlank(identityLink.getUserId())) {
                 SysUser sysUser = iFlowThirdService.getUserByUsername(identityLink.getUserId());
-                userNameList.add(sysUser.getId());
+                userNameList.add(sysUser);
             }
         });
         if (CollectionUtils.isNotEmpty(userNameList)) {
             // TODO: @author azhuzhu 发送提醒消息
-            for (String username :
+            for (SysUser sysUser :
                     userNameList) {
-                System.out.println(taskEntity.getName() + ":" + username + " 发送提醒消息");
+                System.out.println(taskEntity.getName() + ":" + sysUser.getRealname() + " 发送提醒消息");
+                MessageDTO md = new MessageDTO();
+                md.setToAll(false);
+                md.setTitle("任务到达通知");
+                md.setTemplateCode("SYS001");
+                md.setToUser("00004389");
+                md.setType("dingtalk");
+                String testData = "{userName:'" + sysUser.getRealname() + "',taskName:'" + business.getTitle() + "'}";
+                if (oConvertUtils.isNotEmpty(testData)) {
+                    Map<String, Object> data = JSON.parseObject(testData, Map.class);
+                    md.setData(data);
+                }
+                sysBaseApi.sendTemplateMessage(md);
             }
-            StringJoiner joiner = new StringJoiner(", ");
-            for (String str : userNameList) {
-                joiner.add(str);
+            StringJoiner joiner = new StringJoiner(",");
+            for (SysUser sysUser : userNameList) {
+                joiner.add(sysUser.getId());
             }
             String result = joiner.toString();
             SysAnnouncement sysAnnouncement = new SysAnnouncement();
@@ -130,7 +149,7 @@ public class TaskCreateListener implements FlowableEventListener {
             obj.put(WebsocketConst.MSG_CMD, WebsocketConst.CMD_USER);
             obj.put(WebsocketConst.MSG_ID, sysAnnouncement.getId());
             obj.put(WebsocketConst.MSG_TXT, sysAnnouncement.getTitile());
-            webSocket.sendMessage(userNameList.toArray(new String[0]), obj.toJSONString());
+            webSocket.sendMessage(result.split(","), obj.toJSONString());
         }
         String execuId = taskEntity.getExecutionId();
         Execution execution = runtimeService.createExecutionQuery().executionId(execuId).singleResult();

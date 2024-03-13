@@ -963,7 +963,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             flowTask.setProcDefName(pd.getDescription());
             flowTask.setCategory(pd.getCategory());
             flowTask.setDeployId(pd.getDeploymentId());
-            flowTask.setProcDefName(pd.getDescription() + ":" + pd.getName());
+            flowTask.setProcDefName(pd.getName());
             flowTask.setProcDefVersion(pd.getVersion());
             flowTask.setProcInsId(task.getProcessInstanceId());
 
@@ -1020,7 +1020,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                     .processDefinitionId(histTask.getProcessDefinitionId())
                     .singleResult();
             flowTask.setDeployId(pd.getDeploymentId());
-            flowTask.setProcDefName(pd.getDescription() + ":" + pd.getName());
+            flowTask.setProcDefName(pd.getName());
             flowTask.setProcDefVersion(pd.getVersion());
             flowTask.setProcInsId(histTask.getProcessInstanceId());
             flowTask.setHisProcInsId(histTask.getProcessInstanceId());
@@ -1136,15 +1136,15 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             map.put("formData", businessDataById);
         }
         // 获取流程实例
-        List<Task> runTaskList =taskService.createTaskQuery().processInstanceId(procInsId).list();
+        List<Task> runTaskList = taskService.createTaskQuery().processInstanceId(procInsId).list();
         String currentFlowNodeId = "end";
-        if (runTaskList.size()>0) {
+        if (runTaskList.size() > 0) {
             Execution execution = runtimeService.createExecutionQuery().executionId(runTaskList.get(0).getExecutionId()).singleResult();
             // 获取流程实例的当前执行节点ID
             currentFlowNodeId = execution.getActivityId();
         }
         List<String> assigneeArr = new ArrayList<>();
-        for(Task task:runTaskList){
+        for (Task task : runTaskList) {
             assigneeArr.add(task.getAssignee());
         }
         // 使用 StringJoiner 将 assigneeArr 中的元素用逗号拼接成一个字符串
@@ -1240,21 +1240,22 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
         FlowCallBackServiceI flowCallBackService = (FlowCallBackServiceI) SpringContextUtils.getBean(serviceImplName);
         // 流程处理完后，进行回调业务层
         if (flowCallBackService != null) {
-            Object businessDataById = flowCallBackService.getBusinessDataById(business.getDataId());;
+            Object businessDataById = flowCallBackService.getBusinessDataById(business.getDataId());
+            ;
             map.put("formData", businessDataById);
         }
 
         // 获取流程实例
-        List<Task> runTaskList =taskService.createTaskQuery().processInstanceId(procInsId).list();
+        List<Task> runTaskList = taskService.createTaskQuery().processInstanceId(procInsId).list();
         String currentFlowNodeId = "end";
-        if (runTaskList.size()>0) {
+        if (runTaskList.size() > 0) {
             Execution execution = runtimeService.createExecutionQuery().executionId(runTaskList.get(0).getExecutionId()).singleResult();
             // 获取流程实例的当前执行节点ID
             currentFlowNodeId = execution.getActivityId();
 
         }
         List<String> assigneeArr = new ArrayList<>();
-        for(Task task:runTaskList){
+        for (Task task : runTaskList) {
             assigneeArr.add(task.getAssignee());
         }
         // 使用 StringJoiner 将 assigneeArr 中的元素用逗号拼接成一个字符串
