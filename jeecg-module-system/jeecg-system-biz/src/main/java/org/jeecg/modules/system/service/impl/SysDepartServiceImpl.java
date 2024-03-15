@@ -625,6 +625,7 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
         //------------------------------------------------------------------------------------------------
         lqw.eq(true, SysDepart::getDelFlag, CommonConstant.DEL_FLAG_0.toString());
         lqw.func(square);
+        lqw.like(true,SysDepart::getOrgCode, "A01");//只查询雨润集团的部门
         //update-begin---author:wangshuai ---date:20220527  for：[VUEN-1143]排序不对，vue3和2应该都有问题，应该按照升序排------------
         lqw.orderByAsc(SysDepart::getDepartOrder);
         //update-end---author:wangshuai ---date:20220527  for：[VUEN-1143]排序不对，vue3和2应该都有问题，应该按照升序排--------------

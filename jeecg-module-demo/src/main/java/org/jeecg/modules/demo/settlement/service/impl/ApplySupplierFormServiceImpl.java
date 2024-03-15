@@ -155,8 +155,6 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
                 sysDepartService.saveOrUpdate(sysDepart);
             }
             sysUserService.updateStatus(sysUser.getId(),CommonConstant.USER_UNFREEZE.toString());
-
-
         }
     }
 
