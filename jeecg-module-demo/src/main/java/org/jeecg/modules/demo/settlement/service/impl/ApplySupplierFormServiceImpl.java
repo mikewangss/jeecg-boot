@@ -148,6 +148,7 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
             ApplySupplier applySupplier = new ApplySupplier();
             BeanUtils.copyProperties(applySupplierForm, applySupplier);
             applySupplier.setStatus(CommonConstant.STATUS_1);
+            applySupplier.setType(CommonConstant.STATUS_1);//外部供应商
             applySupplierService.saveOrUpdate(applySupplier);
             if (sysDepartList.size() > 0) {
                 SysDepart sysDepart = sysDepartList.get(0);
