@@ -128,6 +128,8 @@ public class ApplyInfoServiceImpl extends ServiceImpl<ApplyInfoMapper, ApplyInfo
             applyInfo.setStatus("工程结算三审");
         } else if (StringUtils.equals(business.getTaskNameId(), "Activity_0nzpayg")) {
             applyInfo.setStatus("结算终审");
+        } else if (StringUtils.equals(business.getTaskNameId(), "Activity_1f15ijo")) {
+            applyInfo.setStatus("结算归档");
         }
         saveOrUpdate(applyInfo);
     }

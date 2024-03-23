@@ -2,6 +2,7 @@ package org.jeecg.modules.demo.settlement.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import io.netty.util.internal.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.modules.demo.settlement.entity.ApplySupplier;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.jeecg.common.util.PasswordUtil;
 
@@ -56,13 +58,25 @@ public class ApplySupplierFormServiceImpl extends ServiceImpl<ApplySupplierFormM
 
     public List<String> getTaskAssaginlist(String region, String orgCode) {
         List<String> assaginlist = new ArrayList<>();
+
         //1.根据region,orgCode获取部门
-        List<SysDepartTreeModel> sysDepartTreeModels = sysDepartService.queryTreeByRegion(region, orgCode);
-        for (SysDepartTreeModel sysDepartTreeModel : sysDepartTreeModels) {
-            List<SysUser> sysUserList = new ArrayList<>();
-            sysUserList = sysUserDepartService.queryUserByDepCode(sysDepartTreeModel.getOrgCode(), "");
-            for (SysUser sysUser : sysUserList) {
-                assaginlist.add(sysUser.getUsername());//3.获取部门所有用户
+        if(!StringUtil.isNullOrEmpty(region)){
+            String regionStr =  region.replace("[","").replace("]","").replace(" ","");
+            List<SysDepartTreeModel> sysDepartTreeModels = sysDepartService.queryTreeByRegion(region, orgCode);
+            List<SysDepartTreeModel> sysDepartTreeModels2 = sysDepartTreeModels.stream().filter(item -> regionStr.equals(item.getRegion())).collect(Collectors.toList());
+            if(sysDepartTreeModels2.size()>0){
+                sysDepartTreeModels=sysDepartTreeModels2;
+            }
+            for (SysDepartTreeModel sysDepartTreeModel : sysDepartTreeModels) {
+                List<SysUser> sysUserList = new ArrayList<>();
+                sysUserList = sysUserDepartService.queryUserByDepCode(sysDepartTreeModel.getOrgCode(), "");
+                for (SysUser sysUser : sysUserList) {
+                    Long count = assaginlist.stream().filter(item -> sysUser.getUsername().equals(item)).count();
+                    if(count==0){
+                        assaginlist.add(sysUser.getUsername());//3.获取部门所有用户
+                    }
+
+                }
             }
         }
         if(assaginlist.size()==0){

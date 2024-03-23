@@ -745,7 +745,6 @@ public class SysDepartServiceImpl extends ServiceImpl<SysDepartMapper, SysDepart
                 String[] arr = model.getRegion().split(",");
                 if (regionArr[0].contains(arr[0]) && regionArr[1].contains(arr[1]) && model.getOrgCode().contains(orgCode)) {
                     newResult.add(model);
-                    continue;
                 }
             } else if (model.getChildren() != null) {
                 getTreeByRegion(region, orgCode,model.getChildren(), newResult);
