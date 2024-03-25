@@ -9,13 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 public enum DySmsEnum {
 
     /**登录短信模板编码*/
-	LOGIN_TEMPLATE_CODE("SMS_464225498","YRGROUP","code"),
+	LOGIN_TEMPLATE_CODE("SMS_465398110","润匠智造","code"),
 	/**流程办理进度通知*/
-	WORKFLOW_CODE("SMS_465410611","YRGROUP","name"),
+	WORKFLOW_CODE("SMS_465338089","润匠智造","name"),
     /**忘记密码短信模板编码*/
-	FORGET_PASSWORD_TEMPLATE_CODE("SMS_464225498","YRGROUP","code"),
+	FORGET_PASSWORD_TEMPLATE_CODE("SMS_465398110","润匠智造","code"),
 	/**注册账号短信模板编码*/
-	REGISTER_TEMPLATE_CODE("SMS_464225498","YRGROUP","code"),
+	REGISTER_TEMPLATE_CODE("SMS_465398110","润匠智造","code"),
 	/**会议通知*/
 	MEET_NOTICE_TEMPLATE_CODE("SMS_201480469","JEECG","username,title,minute,time"),
 	/**我的计划通知*/

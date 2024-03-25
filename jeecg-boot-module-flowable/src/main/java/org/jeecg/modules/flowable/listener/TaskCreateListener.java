@@ -109,7 +109,7 @@ public class TaskCreateListener implements FlowableEventListener {
                 md.setToAll(false);
                 md.setTitle("任务到达通知");
                 md.setTemplateCode("SYS001");
-                md.setToUser("00004389");
+                md.setToUser(sysUser.getWorkNo());
                 md.setType("dingtalk");
                 String testData = "{userName:'" + sysUser.getRealname() + "',taskName:'" + business.getTitle() + "'}";
                 if (oConvertUtils.isNotEmpty(testData)) {
