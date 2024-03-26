@@ -181,8 +181,10 @@ public class ApplyInfoController {
         String proDefKey = "";
         if (StringUtils.equals(sysParentDepart.getDepartName(), "建设集团")) {
             proDefKey = CommonConstant.APPLY_KEY_JS;
-        } else {
+        } else if (StringUtils.equals(sysParentDepart.getDepartName(), "地产集团")) {
             proDefKey = CommonConstant.APPLY_KEY_DC;
+        } else {
+            proDefKey = CommonConstant.APPLY_KEY_NCP;
         }
         flowCommonService.initActBusiness("供应商结算申请流程", apply_id, "applyInfoService", proDefKey);
         flowDefinitionService.startProcessInstanceByKey(proDefKey, variables);

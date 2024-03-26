@@ -662,4 +662,5 @@ public interface CommonConstant {
      */
     String APPLY_KEY_JS = "diagram_Process_212223231455";
     String APPLY_KEY_DC = "diagram_Process_1704786066374";
+    String APPLY_KEY_NCP = "diagram_Process_3326374";
 }

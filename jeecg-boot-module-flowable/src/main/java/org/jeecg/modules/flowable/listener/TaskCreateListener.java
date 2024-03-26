@@ -154,20 +154,20 @@ public class TaskCreateListener implements FlowableEventListener {
         String execuId = taskEntity.getExecutionId();
         Execution execution = runtimeService.createExecutionQuery().executionId(execuId).singleResult();
         String curActId = execution.getActivityId();// 获取流程实例的当前执行节点ID
-        //流程办结通知
-        if (curActId == "end") {
-            SysUser userByUsername = iFlowThirdService.getUserByUsername(business.getProposer());
-            //消息模版
-            DySmsEnum templateCode = DySmsEnum.WORKFLOW_CODE;
-            //模版所需参数
-            JSONObject obj = new JSONObject();
-            obj.put("name", userByUsername.getRealname());
-            try {
-                DySmsHelper.sendSms(userByUsername.getPhone(), obj, templateCode);
-            } catch (ClientException e) {
-                throw new RuntimeException(e);
-            }
-        }
+//        //流程办结通知
+//        if (curActId == "end") {
+//            SysUser userByUsername = iFlowThirdService.getUserByUsername(business.getProposer());
+//            //消息模版
+//            DySmsEnum templateCode = DySmsEnum.WORKFLOW_CODE;
+//            //模版所需参数
+//            JSONObject obj = new JSONObject();
+//            obj.put("name", userByUsername.getRealname());
+//            try {
+//                DySmsHelper.sendSms(userByUsername.getPhone(), obj, templateCode);
+//            } catch (ClientException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
 //        setNextTask(taskEntity);
 
     }

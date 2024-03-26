@@ -2,6 +2,9 @@ package org.jeecg.modules.flowable.listener;
 
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.aliyuncs.exceptions.ClientException;
+import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -22,10 +25,15 @@ import org.flowable.engine.runtime.Execution;
 import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.task.api.Task;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
+import org.jeecg.common.constant.enums.DySmsEnum;
+import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.DySmsHelper;
 import org.jeecg.modules.flowable.apithird.business.entity.FlowMyBusiness;
 import org.jeecg.modules.flowable.apithird.business.service.impl.FlowMyBusinessServiceImpl;
 import org.jeecg.modules.flowable.apithird.entity.ActStatus;
 import org.jeecg.modules.flowable.apithird.entity.SysUser;
+import org.jeecg.modules.flowable.apithird.service.IFlowThirdService;
 import org.jeecg.modules.flowable.domain.dto.FlowNextDto;
 import org.jeecg.modules.flowable.flow.FindNextNodeUtil;
 import org.springframework.stereotype.Component;
@@ -53,22 +61,47 @@ public class TaskCompleteListener implements FlowableEventListener {
     @Resource
     RuntimeService runtimeService;
     @Resource
-    protected RepositoryService repositoryService;
+    IFlowThirdService iFlowThirdService;
+    @Resource
+    ISysBaseAPI sysBaseAPI;
 
     @Override
     public void onEvent(FlowableEvent flowableEvent) {
         TaskEntity taskEntity = (TaskEntity) ((FlowableEntityWithVariablesEventImpl) flowableEvent).getEntity();
         setNextTask(taskEntity);
     }
+
     private void setNextTask(TaskEntity taskEntity) {
         //更新flow_my_business,当前节点信息
         String taskId = taskEntity.getId();
         String execuId = taskEntity.getExecutionId();
+        String dataId = (String) taskEntity.getVariable("dataId");
+        FlowMyBusiness business = flowMyBusinessService.getByDataId(dataId);
         Execution execution = runtimeService.createExecutionQuery().executionId(execuId).singleResult();
         String curActId = execution.getActivityId();// 获取流程实例的当前执行节点ID
         Task task = taskService.createTaskQuery().executionId(execuId).singleResult();
         String procDefId = taskEntity.getProcessDefinitionId();
         Process process = ProcessDefinitionUtil.getProcess(procDefId);
+        //流程办结通知
+        DySmsEnum templateCode = null;
+        if (StringUtils.equalsIgnoreCase(curActId, "finalTask")) {
+            //消息模版
+            templateCode = DySmsEnum.WORKFLOW_CODE;
+        } else if (StringUtils.equalsIgnoreCase(curActId, "registerFinalTask")) {
+            //消息模版
+            templateCode = DySmsEnum.ACCOUNT_PASS_CODE;
+        }
+        if (templateCode != null) {
+            LoginUser userByUsername = sysBaseAPI.getUserByName(business.getProposer());
+            //模版所需参数
+            JSONObject obj = new JSONObject();
+            obj.put("name", userByUsername.getRealname());
+            try {
+                DySmsHelper.sendSms(userByUsername.getPhone(), obj, templateCode);
+            } catch (ClientException e) {
+                throw new RuntimeException(e);
+            }
+        }
 //        if (task != null) {
 //            List<UserTask> nextUserTask = FindNextNodeUtil.getNextUserTasks(repositoryService, task, taskEntity.getVariables());
 //            String dataId = (String) taskEntity.getVariable("dataId");
@@ -92,6 +125,7 @@ public class TaskCompleteListener implements FlowableEventListener {
 //        }
 
     }
+
     @Override
     public boolean isFailOnException() {
         return false;
