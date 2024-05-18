@@ -26,12 +26,13 @@ public class FindNextNodeUtil {
     public static List<UserTask> getNextUserTasks(RepositoryService repositoryService, org.flowable.task.api.Task task, Map<String, Object> map) {
         List<UserTask> data = new ArrayList<>();
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(task.getProcessDefinitionId()).singleResult();
-        BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+        BpmnModel bpmnModel2 = repositoryService.getBpmnModel(processDefinition.getId());
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(task.getProcessDefinitionId());
         Process mainProcess = bpmnModel.getMainProcess();
         Map<String, String> dataObjectMap = bpmnModel.getMainProcess().getDataObjects().stream()
                 .collect(Collectors.toMap(v -> v.getId(), v -> v.getValue() == null ? "" : v.getValue().toString()));
 
-        Collection<FlowElement> flowElements = mainProcess.getFlowElements();
+        Collection<FlowElement> flowElements =  mainProcess.getFlowElementMap().values();
         String key = task.getTaskDefinitionKey();
         FlowElement flowElement = bpmnModel.getFlowElement(key);
         next(flowElements, flowElement, map, data);

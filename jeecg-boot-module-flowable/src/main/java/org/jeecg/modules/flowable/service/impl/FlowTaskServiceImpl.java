@@ -1499,7 +1499,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                     List<SysUser> sysUserFromTask = this.getSysUserFromTask(userTask, values);//返回待办人员username列表
                     // 如果待办人员为空，节点自动跳过，流程节点需要设置skip参数
                     if (sysUserFromTask.size() == 0) {
-                        userTask.setAssignee("");
+//                        userTask.setAssignee("");
                         userTask.setSkipExpression("${true}");
 //                        values.put("skip", true);
                     }
@@ -1566,17 +1566,17 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             } else if (assignee.contains("角色")) {
                 assignee = assignee.replace("角色", "");
                 List<SysUser> usersByRoleId = iFlowThirdService.getUsersByRoleId(assignee);
-                userTask.setAssignee(usersByRoleId.get(0).getUsername());
+//                userTask.setAssignee(usersByRoleId.get(0).getUsername());
                 return usersByRoleId;
             } else if (assignee.contains("岗位")) {
                 String orgCode = (String) values.get("orgCode");
                 String position = assignee.replace("岗位", "");
                 List<SysUser> list = iFlowThirdService.getAllUser(orgCode, position);//公司当前节点所有用户
-                if (list.size() > 0) {
-                    userTask.setAssignee(list.get(0).getUsername());
-                } else {
-                    userTask.setAssignee("");
-                }
+//                if (list.size() > 0) {
+//                    userTask.setAssignee(list.get(0).getUsername());
+//                } else {
+//                    userTask.setAssignee("");
+//                }
                 return list.stream().collect(Collectors.toList());
             }
         }
