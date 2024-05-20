@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.math.BigDecimal;
+import java.util.List;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -98,8 +100,64 @@ public class ApplySupplier implements Serializable {
     @Excel(name = "状态", width = 15)
     @ApiModelProperty(value = "状态")
     private java.lang.String status;
+
     /**供应商类型(1：外部  0：内部)*/
     @Excel(name = "供应商类型", width = 15)
     @ApiModelProperty(value = "供应商类型")
     private java.lang.String type;
+
+    /**
+     * 供应商编号
+     */
+    @Excel(name = "供应商编号")
+    private String supplierNumber;
+    /**
+     * 简称
+     */
+    @Excel(name = "简称")
+    private String abbreviated;
+    /**
+     * 级别
+     */
+    @Excel(name = "级别")
+    private Long level;
+
+    /**
+     * 是否进黑名单
+     */
+    @Excel(name = "是否进黑名单")
+    private Long isBlacklist;
+
+    /**
+     * 服务范围
+     */
+    @Excel(name = "服务范围")
+    private String ranges;
+
+    /**
+     * 原因
+     */
+    @Excel(name = "原因")
+    private String causes;
+
+    /**
+     * 简介
+     */
+    @Excel(name = "简介")
+    private String profile;
+
+
+    /**
+     * 删除
+     */
+    @Excel(name = "删除")
+    private Long isDelete;
+//    /**
+//     * 供应商联系人集合
+//     */
+//    private List<PublicContacts> publicContactsList;
+//
+//    @Excel(name = "供应商资质")
+//    private List<PublicQualification> publicQualificationList;
+
 }

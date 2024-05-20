@@ -12,6 +12,7 @@ import org.jeecg.common.api.dto.message.MessageDTO;
 import org.jeecg.common.constant.enums.DySmsEnum;
 import org.jeecg.common.constant.enums.Vue3MessageHrefEnum;
 import org.jeecg.common.system.api.ISysBaseAPI;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.DySmsHelper;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.message.entity.MsgParams;
@@ -88,6 +89,21 @@ public class TaskCreateListener implements FlowableEventListener {
         if (sysUserList.size() > 0) {
             taskEntity.setAssigneeValue(sysUserList.get(0).getUsername());
         }
+        //流程办结通知
+        DySmsEnum templateCode = null;
+        if (StringUtils.equalsIgnoreCase(taskEntity.getTaskDefinitionKey(), "start")) {
+            //流程退回
+            templateCode = DySmsEnum.WORKFLOW_BACK_CODE;
+            LoginUser userByUsername = sysBaseApi.getUserByName(business.getProposer());
+            //模版所需参数
+            JSONObject obj = new JSONObject();
+            obj.put("name", userByUsername.getRealname());
+            try {
+                DySmsHelper.sendSms(userByUsername.getPhone(), obj, templateCode);
+            } catch (ClientException e) {
+                throw new RuntimeException(e);
+            }
+        }
         List<IdentityLink> idList = taskService.getIdentityLinksForTask(taskId);
         if (CollectionUtils.isEmpty(idList)) {
             return;
@@ -100,6 +116,10 @@ public class TaskCreateListener implements FlowableEventListener {
                 userNameList.add(sysUser);
             }
         });
+        String execuId = taskEntity.getExecutionId();
+        Execution execution = runtimeService.createExecutionQuery().executionId(execuId).singleResult();
+        String curActId = execution.getActivityId();// 获取流程实例的当前执行节点ID
+
         if (CollectionUtils.isNotEmpty(userNameList)) {
             // TODO: @author azhuzhu 发送提醒消息
             for (SysUser sysUser :
@@ -151,24 +171,6 @@ public class TaskCreateListener implements FlowableEventListener {
             obj.put(WebsocketConst.MSG_TXT, sysAnnouncement.getTitile());
             webSocket.sendMessage(result.split(","), obj.toJSONString());
         }
-        String execuId = taskEntity.getExecutionId();
-        Execution execution = runtimeService.createExecutionQuery().executionId(execuId).singleResult();
-        String curActId = execution.getActivityId();// 获取流程实例的当前执行节点ID
-//        //流程办结通知
-//        if (curActId == "end") {
-//            SysUser userByUsername = iFlowThirdService.getUserByUsername(business.getProposer());
-//            //消息模版
-//            DySmsEnum templateCode = DySmsEnum.WORKFLOW_CODE;
-//            //模版所需参数
-//            JSONObject obj = new JSONObject();
-//            obj.put("name", userByUsername.getRealname());
-//            try {
-//                DySmsHelper.sendSms(userByUsername.getPhone(), obj, templateCode);
-//            } catch (ClientException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        setNextTask(taskEntity);
 
     }
 

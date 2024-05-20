@@ -119,7 +119,6 @@ public class ApplySupplierController extends JeecgController<ApplySupplier, IApp
 
     /**
      * 添加
-     *
      * @param applySupplier
      * @return
      */

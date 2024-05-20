@@ -12,6 +12,8 @@ public enum DySmsEnum {
 	LOGIN_TEMPLATE_CODE("SMS_465398110","润匠智造","code"),
 	/**流程办理进度通知*/
 	WORKFLOW_CODE("SMS_465368387","润匠智造","name"),
+	/**流程退回通知*/
+	WORKFLOW_BACK_CODE("SMS_467015162","润匠智造","name"),
 	/**账号审核通过*/
 	ACCOUNT_PASS_CODE("SMS_465393347","润匠智造","name"),
     /**忘记密码短信模板编码*/

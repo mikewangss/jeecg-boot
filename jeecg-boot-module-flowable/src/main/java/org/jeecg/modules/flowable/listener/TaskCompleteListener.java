@@ -90,6 +90,9 @@ public class TaskCompleteListener implements FlowableEventListener {
         } else if (StringUtils.equalsIgnoreCase(curActId, "registerFinalTask")) {
             //消息模版
             templateCode = DySmsEnum.ACCOUNT_PASS_CODE;
+        } else if (StringUtils.equalsIgnoreCase(curActId, "start")) {
+            //流程退回
+            templateCode = DySmsEnum.WORKFLOW_BACK_CODE;
         }
         if (templateCode != null) {
             LoginUser userByUsername = sysBaseAPI.getUserByName(business.getProposer());

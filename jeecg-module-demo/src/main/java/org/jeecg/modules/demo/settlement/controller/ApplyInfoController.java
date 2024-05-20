@@ -173,7 +173,7 @@ public class ApplyInfoController {
         ApplyProject applyProject = applyProjectService.getById(applyInfoPage.getProjectId());
         SysDepart sysDepart = sysDepartService.getDepartById(applyProject.getUnit());
         JSONObject jsonObject = sysDepartService.queryAllParentIdByDepartId(applyProject.getUnit());
-        //获取所在项目的二级部门
+        //获取所在项目的二级部门，bug:如果项目所属单位选择一级单位，此处会报错
         String jsonkey = jsonObject.getJSONObject(applyProject.getUnit()).getJSONArray("parentIds").get(1).toString();
         SysDepart sysParentDepart = (SysDepart) jsonObject.getJSONObject(applyProject.getUnit()).getJSONObject("parentMap").get(jsonkey);
         variables.put("orgCode", sysDepart.getOrgCode());
