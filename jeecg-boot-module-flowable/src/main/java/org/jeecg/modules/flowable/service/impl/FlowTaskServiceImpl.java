@@ -407,13 +407,15 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             //spring容器类名
             String serviceImplName = business.getServiceImplName();
             FlowCallBackServiceI flowCallBackService = (FlowCallBackServiceI) SpringContextUtils.getBean(serviceImplName);
-            Map<String, Object> values = flowTaskVo.getValues();
-            if (values == null) {
-                values = MapUtil.newHashMap();
-                values.put("dataId", dataId);
-            } else {
-                values.put("dataId", dataId);
-            }
+//            Map<String, Object> values = flowTaskVo.getValues();
+//            if (values == null) {
+//                values = MapUtil.newHashMap();
+//                values.put("dataId", dataId);
+//            } else {
+//                values.put("dataId", dataId);
+//            }
+            // 获取当前流程实例的所有变量
+            Map<String, Object> values = runtimeService.getVariables(business.getProcessInstanceId());
             List<String> beforeParamsCandidateUsernames = flowCallBackService.flowCandidateUsernamesOfTask(task2.getTaskDefinitionKey(), values);
             //设置数据
             String doneUsers = business.getDoneUsers();
@@ -431,6 +433,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                     .setTaskName(task2.getName())
                     .setDoneUsers(doneUserList.toJSONString())
             ;
+
             FlowElement targetElement = null;
             if (allElements != null) {
                 for (FlowElement flowElement : allElements) {
@@ -451,7 +454,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                     business.setTodoUsers(JSON.toJSONString(Lists.newArrayList(business.getProposer())));
                     taskService.setAssignee(business.getTaskId(), business.getProposer());
                 } else {
-                    List<SysUser> sysUserFromTask = getSysUserFromTask(targetTask, flowTaskVo.getValues());
+                    List<SysUser> sysUserFromTask = getSysUserFromTask(targetTask, values);
                     List<String> collect_username = sysUserFromTask.stream().map(SysUser::getUsername).collect(Collectors.toList());
                     // 前端存入的候选人
                     List<String> candidateUsers = flowTaskVo.getCandidateUsers();
@@ -587,6 +590,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             //业务数据id
             String dataId = flowTaskVo.getDataId();
             if (dataId == null) return;
+
             //如果保存数据前未调用必调的FlowCommonService.initActBusiness方法，就会有问题
             FlowMyBusiness business = flowMyBusinessService.getByDataId(dataId);
             //spring容器类名
@@ -603,6 +607,8 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             if (!doneUserList.contains(loginUser.getUsername())) {
                 doneUserList.add(loginUser.getUsername());
             }
+            // 获取当前流程实例的所有变量
+            Map<String, Object> values = runtimeService.getVariables(business.getProcessInstanceId());
             //**跳转到目标节点
             List<Task> task2List = taskService.createTaskQuery().processInstanceId(business.getProcessInstanceId()).active().list();
             Task targetTask = task2List.get(0);
@@ -621,7 +627,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                     business.setTodoUsers(JSON.toJSONString(Lists.newArrayList(business.getProposer())));
                     taskService.setAssignee(business.getTaskId(), business.getProposer());
                 } else {
-                    List<SysUser> sysUserFromTask = getSysUserFromTask(target2, flowTaskVo.getValues());
+                    List<SysUser> sysUserFromTask = getSysUserFromTask(target2, values);
                     List<String> collect_username = sysUserFromTask.stream().map(SysUser::getUsername).collect(Collectors.toList());
                     List<String> candidateUsers = flowTaskVo.getCandidateUsers();
                     if (CollUtil.isNotEmpty(candidateUsers)) {
@@ -634,7 +640,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                             taskService.deleteCandidateUser(task2One.getId(), oldUser);
                         }
                     }
-                    Map<String, Object> values = flowTaskVo.getValues();
+//                    Map<String, Object> values = flowTaskVo.getValues();
                     if (values == null) {
                         values = MapUtil.newHashMap();
                         values.put("dataId", dataId);

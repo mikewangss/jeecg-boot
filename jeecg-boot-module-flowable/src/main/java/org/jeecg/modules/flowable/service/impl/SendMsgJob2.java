@@ -52,6 +52,7 @@ public class SendMsgJob2 extends FlowServiceFactory implements Job {
 					}
 					sysBaseApi.sendTemplateMessage(md);
 				} catch (Exception e) {
+					log.error(String.format(" Jeecg-Boot 发送消息任务失败 SendMsgJob !  时间:" + DateUtils.getTimestamp()));
 					e.printStackTrace();
 				}
 			}
